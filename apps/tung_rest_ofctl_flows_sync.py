@@ -40,6 +40,8 @@ from ryu.app.wsgi import WSGIApplication
 #tung
 from pymongo import MongoClient
 import json
+import requests
+from bson import json_util
 
 LOG = logging.getLogger('ryu.app.ofctl_rest')
 
@@ -53,142 +55,49 @@ supported_ofctl = {
 }
 
 
+import time
 
-# REST API
-#
+peers = ['192.168.142.128:8080','192.168.142.131:8080']
+excluded_lists = ['192.168.142.130:8080']
 
-# Retrieve the switch stats
-#
-# get the list of all switches
-# GET /stats/switches
-#
-# get the desc stats of the switch
-# GET /stats/desc/<dpid>
-#
-# get flows desc stats of the switch
-# GET /stats/flowdesc/<dpid>
-#
-# get flows desc stats of the switch filtered by the fields
-# POST /stats/flowdesc/<dpid>
-#
-# get flows stats of the switch
-# GET /stats/flow/<dpid>
-#
-# get flows stats of the switch filtered by the fields
-# POST /stats/flow/<dpid>
-#
-# get aggregate flows stats of the switch
-# GET /stats/aggregateflow/<dpid>
-#
-# get aggregate flows stats of the switch filtered by the fields
-# POST /stats/aggregateflow/<dpid>
-#
-# get table stats of the switch
-# GET /stats/table/<dpid>
-#
-# get table features stats of the switch
-# GET /stats/tablefeatures/<dpid>
-#
-# get ports stats of the switch
-# GET /stats/port/<dpid>[/<port>]
-# Note: Specification of port number is optional
-#
-# get queues stats of the switch
-# GET /stats/queue/<dpid>[/<port>[/<queue_id>]]
-# Note: Specification of port number and queue id are optional
-#       If you want to omitting the port number and setting the queue id,
-#       please specify the keyword "ALL" to the port number
-#       e.g. GET /stats/queue/1/ALL/1
-#
-# get queues config stats of the switch
-# GET /stats/queueconfig/<dpid>[/<port>]
-# Note: Specification of port number is optional
-#
-# get queues desc stats of the switch
-# GET /stats/queuedesc/<dpid>[/<port>[/<queue_id>]]
-# Note: Specification of port number and queue id are optional
-#       If you want to omitting the port number and setting the queue id,
-#       please specify the keyword "ALL" to the port number
-#       e.g. GET /stats/queuedesc/1/ALL/1
-#
-# get meter features stats of the switch
-# GET /stats/meterfeatures/<dpid>
-#
-# get meter config stats of the switch
-# GET /stats/meterconfig/<dpid>[/<meter_id>]
-# Note: Specification of meter id is optional
-#
-# get meter desc stats of the switch
-# GET /stats/meterdesc/<dpid>[/<meter_id>]
-# Note: Specification of meter id is optional
-#
-# get meters stats of the switch
-# GET /stats/meter/<dpid>[/<meter_id>]
-# Note: Specification of meter id is optional
-#
-# get group features stats of the switch
-# GET /stats/groupfeatures/<dpid>
-#
-# get groups desc stats of the switch
-# GET /stats/groupdesc/<dpid>[/<group_id>]
-# Note: Specification of group id is optional (OpenFlow 1.5 or later)
-#
-# get groups stats of the switch
-# GET /stats/group/<dpid>[/<group_id>]
-# Note: Specification of group id is optional
-#
-# get ports description of the switch
-# GET /stats/portdesc/<dpid>[/<port_no>]
-# Note: Specification of port number is optional (OpenFlow 1.5 or later)
+#tung
+def insert_flow(flow, peers_to_exclude=None, peers=None):
+    end_point = '/sync/flow/insert'
+    peers_to_update = [p for p in peers if p not in peers_to_exclude]
+    print(peers_to_update)
+    peers_to_exclude = peers_to_exclude + peers_to_update
+    for peer in peers_to_update:
+        time.sleep(10)
+        url = 'http://{0}{1}'.format(peer,end_point)
+        headers = {'Content-type': 'application/json'}
+        print(url)
+        data = {'exclude': excluded_lists, 'flow': flow}
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()  
+            print("Flow inserted successfully at:", url)
+        except requests.exceptions.RequestException as e:
+            print("Error inserting flow at:", url)
+            print(e)
 
-# Update the switch stats
-#
-# add a flow entry
-# POST /stats/flowentry/add
-#
-# modify all matching flow entries
-# POST /stats/flowentry/modify
-#
-# modify flow entry strictly matching wildcards and priority
-# POST /stats/flowentry/modify_strict
-#
-# delete all matching flow entries
-# POST /stats/flowentry/delete
-#
-# delete flow entry strictly matching wildcards and priority
-# POST /stats/flowentry/delete_strict
-#
-# delete all flow entries of the switch
-# DELETE /stats/flowentry/clear/<dpid>
-#
-# add a meter entry
-# POST /stats/meterentry/add
-#
-# modify a meter entry
-# POST /stats/meterentry/modify
-#
-# delete a meter entry
-# POST /stats/meterentry/delete
-#
-# add a group entry
-# POST /stats/groupentry/add
-#
-# modify a group entry
-# POST /stats/groupentry/modify
-#
-# delete a group entry
-# POST /stats/groupentry/delete
-#
-# modify behavior of the physical port
-# POST /stats/portdesc/modify
-#
-# modify role of controller
-# POST /stats/role
-#
-#
-# send a experimeter message
-# POST /stats/experimenter/<dpid>
-
+#tung
+def delete_flow(flow, peers_to_exclude):
+    end_point = '/sync/flow/delete'
+    peers_to_update = [p for p in peers if p in peers_to_exclude]
+    for peer in peers_to_update:
+        url = 'http://{0}{1}'.format(peer,end_point)
+        headers = {'Content-type': 'application/json'}
+        requests.post(url,json=flow,headers=headers)
+        print(url)
+            
+#tung
+def topology_update(data, peers_to_exclude):
+	end_point = '/sync/topology/update'
+	peers_to_update = [p for p in peers if p in peers_to_exclude]
+	for peer in peers_to_update:
+		url = 'http://{0}{1}'.format(peer,end_point)
+		requests.post(url,json=data)
+		print(url)
 
 class CommandNotFoundError(RyuException):
     message = 'No such command : %(cmd)s'
@@ -201,6 +110,7 @@ class PortNotFoundError(RyuException):
 def stats_method(method):
     def wrapper(self, req, dpid, *args, **kwargs):
         # Get datapath instance from DPSet
+        
         try:
             dp = self.dpset.get(int(str(dpid), 0))
         except ValueError:
@@ -442,12 +352,29 @@ class StatsController(ControllerBase):
         ofctl.mod_flow_entry(dp, flow, mod_cmd)
         #tung
         if cmd == 'add':
+            print('data to send to peer: ', flow)
+            #url = 'http://192.168.142.131:8080/sync/flow/insert'
+            #headers = {'Content-type': 'application/json'}
+            #print('start')
+            #requests.post(url, json=flow, headers=headers)
+            #print('done')
+            insert_flow(flow,excluded_lists,peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
             collection.insert_one(flow)
             client.close()
+            
+            print('data to write to mongodb: ', flow)
+
+
         if cmd == 'delete':
+            print('data to send to peer: ', flow)
+            url = 'http://192.168.142.131:8080/sync/flow/delete'
+            headers = {'Content-type': 'application/json'}
+            print('start')
+            requests.post(url, json=flow, headers=headers)
+            print('done')
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  

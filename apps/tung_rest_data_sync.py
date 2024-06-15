@@ -25,7 +25,8 @@ from ryu.topology.api import get_switch, get_link, get_host
 
 #tung
 from pymongo import MongoClient
-
+import requests
+import ast
 # REST API for switch configuration
 #
 # get all the switches
@@ -103,6 +104,34 @@ class TopologyController(ControllerBase):
     def get_local_topology(self, req, **kwargs):
         return self._topology(req, **kwargs)
     
+    #custom p2p msg coming
+    @route('flow', '/sync/flow/insert',
+           methods=['POST'])
+    def onReceive_insert(self, req, **kwargs):
+        data = ast.literal_eval(req.body.decode('utf-8'))
+        flow = data['flow']
+        peers_to_exclude = data['exlude']
+        print(peers_to_exclude)
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['sdn']  
+        collection = db['flows']  
+        collection.insert_one(flow)
+        client.close()
+        return 
+    #custom p2p msg coming
+    @route('flow', '/sync/flow/delete',
+           methods=['POST'])
+    def onReceive_delete(self, req, **kwargs):
+        data = ast.literal_eval(req.body.decode('utf-8'))
+        flow = data['flow']
+        peers_to_exclude = data['exlude']
+        print(peers_to_exclude)
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['sdn']  
+        collection = db['flows']  
+        collection.delete_one(flow)
+        client.close()
+        return 
         #tung
     @route('topology', '/tung/topology/global',
            methods=['GET'])
@@ -183,3 +212,44 @@ class TopologyController(ControllerBase):
 
         body = json.dumps(topology)
         return Response(content_type='application/json', body=body)
+
+peers = ['192.168.142.128','192.168.142.131']
+excluded_lists = ['192.168.142.131']
+
+f = open('/home/huutung/peers.txt','a')
+f.write("192.168.1.1" + "\n")
+f.close()
+
+f = open('/home/huutung/peers.txt','r')
+peer = f.read().splitlines()
+f.close()
+print(peer)
+
+#tung
+def insert_flow(flow, peers_to_exclude):
+	end_point = '/sync/flow/insert'
+	peers_to_update = [p for p in peers if p in peers_to_exclude]
+	for peer in peers_to_update:
+		url = 'http://{1}{2}'.format(peer,end_point)
+		requests.post(url,json=flow)
+		print(url)
+
+#tung
+def delete_flow(flow, peers_to_exclude):
+	end_point = '/sync/flow/delete'
+	peers_to_update = [p for p in peers if p in peers_to_exclude]
+	for peer in peers_to_update:
+		url = 'http://{0}{1}'.format(peer,end_point)
+		requests.post(url,json=flow)
+		print(url)
+          
+#tung
+def topology_update(data, peers_to_exclude):
+	end_point = '/sync/topology/update'
+	peers_to_update = [p for p in peers if p in peers_to_exclude]
+	for peer in peers_to_update:
+		url = 'http://{0}{1}'.format(peer,end_point)
+		requests.post(url,json=data)
+		print(url)
+
+	
