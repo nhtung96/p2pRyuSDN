@@ -226,24 +226,6 @@ f.close()
 print(peer)
 
 #tung
-def insert_flow(flow, peers_to_exclude):
-	end_point = '/sync/flow/insert'
-	peers_to_update = [p for p in peers if p in peers_to_exclude]
-	for peer in peers_to_update:
-		url = 'http://{1}{2}'.format(peer,end_point)
-		requests.post(url,json=flow)
-		print(url)
-
-#tung
-def delete_flow(flow, peers_to_exclude):
-	end_point = '/sync/flow/delete'
-	peers_to_update = [p for p in peers if p in peers_to_exclude]
-	for peer in peers_to_update:
-		url = 'http://{0}{1}'.format(peer,end_point)
-		requests.post(url,json=flow)
-		print(url)
-          
-#tung
 def topology_update(data, peers_to_exclude):
 	end_point = '/sync/topology/update'
 	peers_to_update = [p for p in peers if p in peers_to_exclude]
@@ -252,4 +234,35 @@ def topology_update(data, peers_to_exclude):
 		requests.post(url,json=data)
 		print(url)
 
-	
+peers = ['192.168.142.128:8080','192.168.142.131:8080']
+excluded_lists = ['192.168.142.130:8080']
+
+#tung
+def insert_flow(flow, peers_to_exclude=None, peers=None):
+    end_point = '/sync/flow/insert'
+    peers_to_update = [p for p in peers if p not in peers_to_exclude]
+    print(peers_to_update)
+    peers_to_exclude = peers_to_exclude + peers_to_update
+    for peer in peers_to_update:
+        time.sleep(10)
+        url = 'http://{0}{1}'.format(peer,end_point)
+        headers = {'Content-type': 'application/json'}
+        print(url)
+        data = {'exclude': excluded_lists, 'flow': flow}
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()  
+            print("Flow inserted successfully at:", url)
+        except requests.exceptions.RequestException as e:
+            print("Error inserting flow at:", url)
+            print(e)
+
+#tung
+def delete_flow(flow, peers_to_exclude):
+    end_point = '/sync/flow/delete'
+    peers_to_update = [p for p in peers if p in peers_to_exclude]
+    for peer in peers_to_update:
+        url = 'http://{0}{1}'.format(peer,end_point)
+        headers = {'Content-type': 'application/json'}
+        requests.post(url,json=flow,headers=headers)
+        print(url)
