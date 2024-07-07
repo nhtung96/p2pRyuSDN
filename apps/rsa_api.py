@@ -64,7 +64,14 @@ def load_authorized_list(file_path):
     with open(file_path, 'r') as file:
         for line in file:
             hostname, pubkey = line.strip().split()
-            authorized[hostname] = pubkey
+            try:
+                pubkey_obj = serialization.load_pem_public_key(
+                    pubkey.encode(),
+                    backend=default_backend()
+                )
+                authorized_list[hostname] = pubkey_obj
+            except ValueError as e:
+                print(f"Error loading public key for {hostname}: {e}")
     return authorized
 
 # Load keys
