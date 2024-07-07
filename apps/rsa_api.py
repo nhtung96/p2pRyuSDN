@@ -175,7 +175,7 @@ def decrypt_with_session_key(session_key, encrypted_data):
 
 class RsaController(ControllerBase):
     def __init__(self, req, link, data, **config):
-        super(RsaApp, self).__init__(req, link, data, **config)
+        super(RsaController, self).__init__(req, link, data, **config)
         self.rsa_api_app = data['rsa_api_app']
         
     @route('rsa', '/rsa/test', methods=['GET'])
