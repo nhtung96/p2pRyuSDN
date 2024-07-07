@@ -183,9 +183,8 @@ class RsaController(ControllerBase):
         return Response(content_type='text/html', body=test_html)
     
     
-    @route('rsa', '/send_message1/{hostname_peer}', methods=['POST'])
+    @route('rsa', '/send_message1/{hostname_peer}', methods=['GET'])
     def send_message1(self, req, hostname_peer, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
         if hostname_peer in authorized_list:
             public_key_peer = authorized_list[hostname_peer]
