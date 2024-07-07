@@ -59,25 +59,13 @@ def load_neighbors(file_path):
 
 
 # Load authorized list from a file
-def load_authorized_list(filename):
-    authorized_list = {}
-    with open(filename, 'r') as file:
+def load_authorized_list(file_path):
+    authorized = {}
+    with open(file_path, 'r') as file:
         for line in file:
-            parts = line.strip().split(None, 2)  # Split the line into three parts
-            if len(parts) >= 3:
-                hostname = parts[0]
-                pubkey_str = parts[1] + " " + parts[2]  # Join the key type and the actual key
-                try:
-                    pubkey_obj = serialization.load_ssh_public_key(
-                        pubkey_str.encode(),
-                        backend=default_backend()
-                    )
-                    authorized_list[hostname] = pubkey_obj
-                except ValueError as e:
-                    print(f"Error loading public key for {hostname}: {e}")
-            else:
-                print("Skipping invalid line: {}".format(line.strip()))
-    return authorized_list
+            hostname, pubkey = line.strip().split()
+            authorized[hostname] = pubkey
+    return authorized
 
 # Load keys
 def load_private_key(path):
