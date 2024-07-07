@@ -72,7 +72,7 @@ def load_private_key(path):
 
 def load_public_key(path):
     with open(path, "rb") as key_file:
-        public_key = serialization.load_pem_public_key(key_file.read())
+        public_key = serialization.load_pem_public_key(key_file.read(),backend=default_backend())
     return public_key
 
 neighbor_list = load_neighbors(neighbors_path)
