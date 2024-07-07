@@ -19,6 +19,18 @@ import ast
 
 import socket
 
+test_html = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ryu Application</title>
+</head>
+<body>
+    <h1>Welcome to the Ryu Application</h1>
+    <p>This is a simple web page served by the Ryu application.</p>
+</body>
+</html>
+"""
 
 hostname = socket.gethostname()  # Change this to "hostnameB" for the other node
 public_key_path = "/home/huutung/.ssh/id_rsa.pub.pem"  # Change this to "public_key_B.pem" for the other node
