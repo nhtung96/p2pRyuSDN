@@ -224,8 +224,11 @@ class RsaController(ControllerBase):
     # Step 1: Receive and process Message 1 (Anonce)
     @route('rsa', '/message1', methods=['POST'])
     def receive_message1(self, req, **kwargs):
-        data = json.loads(req.body.decode('utf-8'))
-        hostname_peer = data['hostname']
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
+        print(data)
+        print(type(data))
+        hostname_peer = data.get('hostname')
         encrypted_anonce = data.get('anonce')
 
         if hostname_peer in authorized_list:
