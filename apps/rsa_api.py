@@ -208,7 +208,7 @@ class RsaController(ControllerBase):
             }
             # Send Message 1
             end_point = '/message1'
-            url = 'http://{0}{1}'.format(hostname_peer,end_point)
+            url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
             data = json.dumps(message1)
             try:
@@ -253,7 +253,7 @@ class RsaController(ControllerBase):
             }
             # Send Message 2
             end_point = '/message2'
-            url = 'http://{0}{1}'.format(hostname_peer,end_point)
+            url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
             data = json.dumps(message2)
             try:
