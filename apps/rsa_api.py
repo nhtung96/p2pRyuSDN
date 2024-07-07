@@ -46,13 +46,18 @@ def load_neighbors(file_path):
 
 
 # Load authorized list from a file
-def load_authorized_list(file_path):
-    authorized = {}
-    with open(file_path, 'r') as file:
+def load_authorized_list(filename):
+    authorized_list = {}
+    with open(filename, 'r') as file:
         for line in file:
-            hostname, pubkey = line.strip().split()
-            authorized[hostname] = pubkey
-    return authorized
+            parts = line.strip().split(None, 2)  # Split the line into three parts
+            if len(parts) >= 3:
+                hostname = parts[0]
+                pubkey = parts[1] + " " + parts[2]  # Join the key type and the actual key
+                authorized_list[hostname] = pubkey
+            else:
+                print("Skipping invalid line: {}".format(line.strip()))
+    return authorized_list
 
 # Load keys
 def load_private_key(path):
