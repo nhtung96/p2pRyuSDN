@@ -67,12 +67,14 @@ def load_authorized_list(filename):
             if len(parts) >= 3:
                 hostname = parts[0]
                 pubkey_str = parts[1] + " " + parts[2]  # Join the key type and the actual key
-                # Convert pubkey_str to public key object
-                pubkey_obj = serialization.load_pem_public_key(
-                    pubkey_str.encode(),
-                    backend=default_backend()
-                )
-                authorized_list[hostname] = pubkey_obj
+                try:
+                    pubkey_obj = serialization.load_ssh_public_key(
+                        pubkey_str.encode(),
+                        backend=default_backend()
+                    )
+                    authorized_list[hostname] = pubkey_obj
+                except ValueError as e:
+                    print(f"Error loading public key for {hostname}: {e}")
             else:
                 print("Skipping invalid line: {}".format(line.strip()))
     return authorized_list
