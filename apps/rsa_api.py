@@ -188,6 +188,8 @@ class RsaController(ControllerBase):
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
         if hostname_peer in authorized_list:
             public_key_peer = authorized_list[hostname_peer]
+            if hostname_peer not in peer_list:
+                peer_list[hostname_peer] = [None, None, None]  # Initialize peer_list entry
             peer_list[hostname_peer][0] = anonce 
             # Encrypt Anonce with receiver's public key
             encrypted_anonce = encrypt_with_public_key(public_key_peer, anonce)
