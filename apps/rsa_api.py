@@ -204,13 +204,13 @@ class RsaController(ControllerBase):
         # Prepare Message 1 JSON payload
             message1 = {
                 "hostname": hostname,
-                "anonce": encrypted_anonce
+                "anonce": base64.b64encode(encrypted_anonce).decode('utf-8')
             }
             # Send Message 1
             end_point = '/message1'
             url = 'http://{0}{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
-            data = message1
+            data = json.dumps(message1)
             try:
                 response = requests.post(url, json=data, headers=headers)
                 response.raise_for_status()  
@@ -224,7 +224,7 @@ class RsaController(ControllerBase):
     # Step 1: Receive and process Message 1 (Anonce)
     @route('rsa', '/message1', methods=['POST'])
     def receive_message1(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
+        data = json.loads(req.body.decode('utf-8'))
         hostname_peer = data.get('hostname')
         encrypted_anonce = data.get('anonce')
 
@@ -255,7 +255,7 @@ class RsaController(ControllerBase):
             end_point = '/message2'
             url = 'http://{0}{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
-            data = message2
+            data = json.dumps(message2)
             try:
                 response = requests.post(url, json=data, headers=headers)
                 response.raise_for_status()  
