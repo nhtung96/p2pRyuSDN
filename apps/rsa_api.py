@@ -4,6 +4,7 @@ from ryu.app.wsgi import route
 from ryu.app.wsgi import WSGIApplication
 from ryu.base import app_manager
 
+from cryptography.hazmat.backends import default_backend
 import os
 import base64
 import requests
@@ -65,6 +66,7 @@ def load_private_key(path):
         private_key = serialization.load_pem_private_key(
             key_file.read(),
             password=None,
+            backend=default_backend()
         )
     return private_key
 
