@@ -66,8 +66,13 @@ def load_authorized_list(filename):
             parts = line.strip().split(None, 2)  # Split the line into three parts
             if len(parts) >= 3:
                 hostname = parts[0]
-                pubkey = parts[1] + " " + parts[2]  # Join the key type and the actual key
-                authorized_list[hostname] = pubkey
+                pubkey_str = parts[1] + " " + parts[2]  # Join the key type and the actual key
+                # Convert pubkey_str to public key object
+                pubkey_obj = serialization.load_pem_public_key(
+                    pubkey_str.encode(),
+                    backend=default_backend()
+                )
+                authorized_list[hostname] = pubkey_obj
             else:
                 print("Skipping invalid line: {}".format(line.strip()))
     return authorized_list
