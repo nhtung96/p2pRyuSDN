@@ -225,7 +225,7 @@ class RsaController(ControllerBase):
     @route('rsa', '/message1', methods=['POST'])
     def receive_message1(self, req, **kwargs):
         data = json.loads(req.body.decode('utf-8'))
-        hostname_peer = data.get('hostname')
+        hostname_peer = data['hostname']
         encrypted_anonce = data.get('anonce')
 
         if hostname_peer in authorized_list:
