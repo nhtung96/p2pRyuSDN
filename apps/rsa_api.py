@@ -60,7 +60,7 @@ def load_neighbors(file_path):
 
 # Load authorized list from a file
 def load_authorized_list(file_path):
-    authorized = {}
+    authorized = dict()
     with open(file_path, 'r') as file:
         for line in file:
             hostname, pubkey = line.strip().split()
