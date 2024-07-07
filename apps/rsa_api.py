@@ -37,7 +37,7 @@ public_key_path = "/home/huutung/.ssh/id_rsa.pub.pem"  # Change this to "public_
 private_key_path = "/home/huutung/.ssh/id_rsa"  # Change this to "private_key_B.pem" for the other node
 neighbors_path = "/home/huutung/neighbors.txt"
 authorized_list_path = "/home/huutung/authorized_list.txt"
-peer_list = {"controller-2":{}}
+peer_list = {}
 
 class RsaApp(app_manager.RyuApp):
     _CONTEXTS = {
