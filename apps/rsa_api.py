@@ -436,11 +436,11 @@ class RsaController(ControllerBase):
         json_str = req.body.decode('utf-8')
         data = json.loads(json.loads(json_str))
         hostname_peer = data.get('hostname')
-        message = base64.b64decode(data.get('encrypted_message'))
+        message = data.get('encrypted_message')
         if hostname_peer in peer_list:
             session_key = peer_list[hostname_peer][2]
             decrypted_message = decrypt_with_session_key(session_key, message)
-            print(f"Received message: {decrypted_message.decode('utf-8')}")
+            print(f"Received message: {decrypted_message}")
             return json.dumps({'status': 'Message received'}), 200
         else:
             return json.dumps({'status': 'No message received'}), 400
