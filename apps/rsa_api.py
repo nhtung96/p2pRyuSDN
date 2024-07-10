@@ -239,11 +239,13 @@ class RsaController(ControllerBase):
                 response = requests.post(url, json=data, headers=headers)
                 response.raise_for_status()  
                 print("Message 1 sent to:", hostname_peer)
+                
             except requests.exceptions.RequestException as e:
                 print("Error sending message 1 to:", hostname_peer)
                 print(e)
+            return
         else:
-            return json.dumps({'error': f"{hostname_peer} is not authorized."}), 403
+            return f"{hostname_peer} is not authorized."
 
     # Step 1: Receive and process Message 1 (Anonce)
     @route('rsa', '/message1', methods=['POST'])
@@ -290,9 +292,11 @@ class RsaController(ControllerBase):
                 response = requests.post(url, json=data, headers=headers)
                 response.raise_for_status()  
                 print("Message 2 sent to:", hostname_peer)
+                
             except requests.exceptions.RequestException as e:
                 print("Error sending message 2 to:", hostname_peer)
                 print(e)
+            return
         else:
             return json.dumps({'error': f"{hostname_peer} is not authorized."}), 403
 
@@ -336,11 +340,11 @@ class RsaController(ControllerBase):
                 except requests.exceptions.RequestException as e:
                     print("Error sending message 3 to:", hostname_peer)
                     print(e)
-                return json.dumps({'status': 'Message 3 OK.'}), 200
+                return 
             else:
-                return json.dumps({'error': f"{hostname_peer} is not authorized."}), 403
+                return f"{hostname_peer} is not authorized."
         else:
-            return json.dumps({'error': f"{hostname_peer} is not authorized."}), 403
+            return f"{hostname_peer} is not authorized."
 
     # Step 3: Receive and process Message 3 (Signed Bnonce)
     @route('rsa', '/message3', methods=['POST'])
@@ -379,9 +383,9 @@ class RsaController(ControllerBase):
 
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("final peer list: ", peer_list)
-                return json.dumps({'status': 'Message 3 OK.'}), 200
+                return 
             else:
-                return json.dumps({'error': "Signature verification failed for signed Bnonce."}), 403
+                return {'error': "Signature verification failed for signed Bnonce."}
         
     # Step 4: Receive and process Message 4 (OK)
     @route('rsa', '/message4', methods=['POST'])
@@ -400,11 +404,8 @@ class RsaController(ControllerBase):
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("peer list final", peer_list)
                 #save_peer_list('/home/huutung/peer_list.txt', peer_list)
-                return 200
-            else:
-                return 400
-
-
+                return 
+            
     # Send secure message function
     @route('rsa', '/send_test_message/{hostname_peer}', methods=['POST'])
     def send_secure_message(self, req, hostname_peer, **kwargs):
@@ -429,6 +430,7 @@ class RsaController(ControllerBase):
             except requests.exceptions.RequestException as e:
                 print("Error sending message  to:", hostname_peer)
                 print(e)
+            return
 
     # Receive secure message endpoint
     @route('rsa', '/secure_message', methods=['POST'])
@@ -442,8 +444,6 @@ class RsaController(ControllerBase):
             session_key = peer_list[hostname_peer][2]
             decrypted_message = decrypt_with_session_key(session_key, message)
             print(f"Received message: {decrypted_message}")
-            return 
-        else:
             return 
         
 
