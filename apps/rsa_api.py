@@ -285,7 +285,8 @@ class RsaController(ControllerBase):
     # Step 2: Receive and process Message 2 (Signed Anonce, Bnonce)
     @route('rsa', '/message2', methods=['POST'])
     def receive_message2(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
         hostname_peer = data.get('hostname')
         signed_anonce = base64.b64decode(data.get('signed_anonce'))
         bnonce_encoded = base64.b64decode(data.get('bnonce'))
@@ -327,7 +328,8 @@ class RsaController(ControllerBase):
     # Step 3: Receive and process Message 3 (Signed Bnonce)
     @route('rsa', '/message3', methods=['POST'])
     def receive_message3(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
         hostname_peer = data.get('hostname')
         signed_bnonce = base64.b64decode(data.get('signed_bnonce'))
 
@@ -365,7 +367,8 @@ class RsaController(ControllerBase):
     # Step 4: Receive and process Message 4 (OK)
     @route('rsa', '/message4', methods=['POST'])
     def receive_message4(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
         hostname_peer = data.get('hostname')
         status = data.get('status')
         
