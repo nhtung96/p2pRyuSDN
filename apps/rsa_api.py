@@ -184,7 +184,7 @@ def encrypt_with_session_key(session_key, json_obj):
 
 def decrypt_with_session_key(session_key, encrypted_data):
     # Decode the base64 encoded data
-    ciphertext = base64.b64decode(encrypted_data)
+    ciphertext = encrypted_data
     
     # Extract the IV and the actual ciphertext
     iv = ciphertext[:16]
@@ -437,6 +437,7 @@ class RsaController(ControllerBase):
         data = json.loads(json.loads(json_str))
         hostname_peer = data.get('hostname')
         message = data.get('encrypted_message')
+        print("message", message)
         if hostname_peer in peer_list:
             session_key = peer_list[hostname_peer][2]
             decrypted_message = decrypt_with_session_key(session_key, message)
