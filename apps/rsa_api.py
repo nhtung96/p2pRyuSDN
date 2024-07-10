@@ -139,16 +139,28 @@ def sign_with_private_key(private_key, message):
 
 def verify_signature(public_key, signature, message):
     print("enter verify")
-    public_key.verify(
-        signature,
-        message,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
-    print("finish verify")
+    try:
+        public_key.verify(
+            signature,
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        print("verify finish")
+        return True
+    except ValueError:
+        # Signature verification failed
+        print("verify failed")
+        return False
+    except Exception as e:
+        # Handle other exceptions
+        print(f"Error during signature verification: {e}")
+        return False
+    
+    
 
 def compute_session_key(anonce, bnonce):
     return hashlib.sha256(anonce + bnonce).digest()
