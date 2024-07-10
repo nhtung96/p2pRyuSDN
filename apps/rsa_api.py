@@ -290,17 +290,18 @@ class RsaController(ControllerBase):
         hostname_peer = data.get('hostname')
         signed_anonce = base64.b64decode(data.get('signed_anonce'))
         bnonce_encoded = base64.b64decode(data.get('bnonce'))
-
+      
         if hostname_peer in authorized_list:
             public_key_peer= load_public_key_pem(authorized_list[hostname_peer])
             anonce = peer_list[hostname_peer][0] 
+            print("anonce", anonce)
             if verify_signature(public_key_peer, signed_anonce, anonce):
                 # Decrypt Bnonce with own private key
                 decrypted_bnonce = decrypt_with_private_key(private_key, bnonce_encoded)
 
                 #Save bnonce
                 peer_list[hostname_peer][1] = decrypted_bnonce
-
+                print("peer_list: ", peer_list)
                 # Prepare Message 3 (signed_bnonce)
                 signed_bnonce = sign_with_private_key(private_key, decrypted_bnonce)
                 message3 = {
@@ -308,17 +309,17 @@ class RsaController(ControllerBase):
                     'signed_bnonce': base64.b64encode(signed_bnonce).decode('utf-8')
                 }
                 end_point = '/message3'
-                url = 'http://{0}{1}'.format(hostname_peer,end_point)
+                url = 'http://{0}{1}'.format(hostname_peer, end_point)
                 headers = {'Content-type': 'application/json'}
-                data = message3
+                data = json.dumps(message3)
                 try:
                     response = requests.post(url, json=data, headers=headers)
                     response.raise_for_status()  
-                    print("Message 2 sent to:", hostname_peer)
+                    print("Message 3 sent to:", hostname_peer)
                 except requests.exceptions.RequestException as e:
-                    print("Error sending message 2 to:", hostname_peer)
+                    print("Error sending message 3 to:", hostname_peer)
                     print(e)
-                return json.dumps({'status': 'Message 2 OK.'}), 200
+                return json.dumps({'status': 'Message 3 OK.'}), 200
             else:
                 return json.dumps({'error': f"{hostname_peer} is not authorized."}), 403
         else:
@@ -346,13 +347,13 @@ class RsaController(ControllerBase):
                 end_point = '/message4'
                 url = 'http://{0}{1}'.format(hostname_peer,end_point)
                 headers = {'Content-type': 'application/json'}
-                data = message4
+                data = json.dumps(message4)
                 try:
                     response = requests.post(url, json=data, headers=headers)
                     response.raise_for_status()  
-                    print("Message 2 sent to:", hostname_peer)
+                    print("Message 4 sent to:", hostname_peer)
                 except requests.exceptions.RequestException as e:
-                    print("Error sending message 2 to:", hostname_peer)
+                    print("Error sending message 4 to:", hostname_peer)
                     print(e)
 
                 #save session key    
@@ -363,7 +364,7 @@ class RsaController(ControllerBase):
                 return json.dumps({'status': 'Message 3 OK.'}), 200
             else:
                 return json.dumps({'error': "Signature verification failed for signed Bnonce."}), 403
-
+        print("final peer list: ", peer_list)
     # Step 4: Receive and process Message 4 (OK)
     @route('rsa', '/message4', methods=['POST'])
     def receive_message4(self, req, **kwargs):
