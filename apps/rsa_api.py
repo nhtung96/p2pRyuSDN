@@ -95,7 +95,7 @@ authorized_list = load_authorized_list(authorized_list_path)
 private_key = load_private_key(private_key_path)
 public_key = load_public_key(public_key_path)
 
-print("hostname: ", hostname, "\nneighbor list: ", neighbor_list, "\nprivate key: ", private_key, "\npublic key: ", public_key)
+print("hostname: ", hostname, "\nneighbor list: ", neighbor_list, "\nprivate key: ", private_key, "\npublic key: ", public_key, "\nauthorized_list: ", authorized_list)
 # Utility functions
 def encrypt_with_public_key(public_key, message):
     return public_key.encrypt(

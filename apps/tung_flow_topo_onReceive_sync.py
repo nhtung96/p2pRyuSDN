@@ -213,18 +213,6 @@ class TopologyController(ControllerBase):
         body = json.dumps(topology)
         return Response(content_type='application/json', body=body)
 
-peers = ['192.168.142.128','192.168.142.131']
-excluded_lists = ['192.168.142.131']
-
-f = open('/home/huutung/peers.txt','a')
-f.write("192.168.1.1" + "\n")
-f.close()
-
-f = open('/home/huutung/peers.txt','r')
-peer = f.read().splitlines()
-f.close()
-print(peer)
-
 #tung
 def topology_update(data, peers_to_exclude):
 	end_point = '/sync/topology/update'
@@ -233,9 +221,6 @@ def topology_update(data, peers_to_exclude):
 		url = 'http://{0}{1}'.format(peer,end_point)
 		requests.post(url,json=data)
 		print(url)
-
-peers = ['192.168.142.128:8080','192.168.142.131:8080']
-excluded_lists = ['192.168.142.130:8080']
 
 #tung
 def insert_flow(flow, peers_to_exclude=None, peers=None):
