@@ -406,23 +406,38 @@ class RsaController(ControllerBase):
 
 
     # Send secure message function
-    def send_secure_message(peer_hostname, message):
-        if peer_hostname in peer_list:
-            session_key = peer_list[peer_hostname][2]
+    @route('rsa', '/send_test_message/{hostname_peer}/{message}', methods=['GET'])
+    def send_secure_message(hostname_peer, message):
+        if hostname_peer in peer_list:
+            session_key = peer_list[hostname_peer][2]
             encrypted_message = encrypt_with_session_key(session_key, message.encode('utf-8'))
-            response = requests.post(f'http://{peer_hostname}:8080/receive_secure_message', data=encrypted_message)
-            if response.status_code == 200:
-                print(f"Message sent to {peer_hostname}: {message}")
-            else:
-                print(f"Failed to send message to {peer_hostname}")
-        else:
-            print(f"No session key found for {peer_hostname}")
+            print("message", message, "encrypted message", encrypted_message)
+            message_send = {
+                'hostname': hostname,
+                'encrypted message': base64.b64encode(encrypted_message).decode('utf-8')
+            }
+            end_point = '/secure_message'
+            url = 'http://{0}:8080{1}'.format(hostname_peer, end_point)
+            headers = {'Content-type': 'application/json'}
+            data = json.dumps(message_send)
+            try:
+                response = requests.post(url, json=data, headers=headers)
+                response.raise_for_status()  
+                print("Message sent to:", hostname_peer)
+            except requests.exceptions.RequestException as e:
+                print("Error sending message  to:", hostname_peer)
+                print(e)
 
     # Receive secure message endpoint
-    @route('rsa', '/receive_secure_message', methods=['POST'])
-    def receive_secure_message():
-        if requests.data:
-            decrypted_message = decrypt_with_session_key(session_key, request.data)
+    @route('rsa', '/secure_message', methods=['POST'])
+    def receive_secure_message(self, req, **kwargs):
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
+        hostname_peer = data.get('hostname')
+        message = base64.b64decode(data.get('encrypted_message'))
+        if hostname_peer in peer_list:
+            session_key = peer_list[hostname_peer][2]
+            decrypted_message = decrypt_with_session_key(session_key, message)
             print(f"Received message: {decrypted_message.decode('utf-8')}")
             return json.dumps({'status': 'Message received'}), 200
         else:
