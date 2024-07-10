@@ -412,7 +412,7 @@ class RsaController(ControllerBase):
             session_key = peer_list[hostname_peer][2]
             message = ast.literal_eval(req.body.decode('utf-8'))
             print("message:", message)
-            encrypted_message = encrypt_with_session_key(session_key, message.encode('utf-8'))
+            encrypted_message = encrypt_with_session_key(session_key, message)
             print("message", message, "encrypted message", encrypted_message)
             message_send = {
                 'hostname': hostname,
