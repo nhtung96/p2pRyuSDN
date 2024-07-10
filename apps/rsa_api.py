@@ -326,7 +326,7 @@ class RsaController(ControllerBase):
                     'signed_bnonce': base64.b64encode(signed_bnonce).decode('utf-8')
                 }
                 end_point = '/message3'
-                url = 'http://{0}{1}'.format(hostname_peer, end_point)
+                url = 'http://{0}:8080{1}'.format(hostname_peer, end_point)
                 headers = {'Content-type': 'application/json'}
                 data = json.dumps(message3)
                 try:
@@ -362,7 +362,7 @@ class RsaController(ControllerBase):
                     'status': 'OK'
                 }
                 end_point = '/message4'
-                url = 'http://{0}{1}'.format(hostname_peer,end_point)
+                url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
                 headers = {'Content-type': 'application/json'}
                 data = json.dumps(message4)
                 try:
