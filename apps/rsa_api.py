@@ -148,6 +148,7 @@ def verify_signature(public_key, signature, message):
         ),
         hashes.SHA256()
     )
+    print("finish verify")
 
 def compute_session_key(anonce, bnonce):
     return hashlib.sha256(anonce + bnonce).digest()
