@@ -442,9 +442,9 @@ class RsaController(ControllerBase):
             session_key = peer_list[hostname_peer][2]
             decrypted_message = decrypt_with_session_key(session_key, message)
             print(f"Received message: {decrypted_message}")
-            return 200
+            return 
         else:
-            return 400
+            return 
         
 
     # Endpoint to view neighbor list
