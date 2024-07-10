@@ -206,6 +206,7 @@ class RsaController(ControllerBase):
             if hostname_peer not in peer_list:
                 peer_list[hostname_peer] = [None, None, None]  # Initialize peer_list entry
             peer_list[hostname_peer][0] = anonce 
+            print("anonce", anonce)
             # Encrypt Anonce with receiver's public key
             encrypted_anonce = encrypt_with_public_key(public_key_peer, anonce)
 
@@ -237,7 +238,7 @@ class RsaController(ControllerBase):
         print(data)
         print(type(data))
         hostname_peer = data.get('hostname')
-        encrypted_anonce = data.get('anonce')
+        encrypted_anonce = base64.b64decode(data.get('anonce'))
 
         if hostname_peer in authorized_list:
             public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
