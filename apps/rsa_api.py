@@ -37,6 +37,7 @@ public_key_path = "/home/huutung/.ssh/id_rsa.pub.pem"  # Change this to "public_
 private_key_path = "/home/huutung/.ssh/id_rsa"  # Change this to "private_key_B.pem" for the other node
 neighbors_path = "/home/huutung/neighbors.txt"
 authorized_list_path = "/home/huutung/authorized_list.txt"
+
 peer_list = {}
 
 class RsaApp(app_manager.RyuApp):
@@ -94,6 +95,7 @@ authorized_list = load_authorized_list(authorized_list_path)
 private_key = load_private_key(private_key_path)
 public_key = load_public_key(public_key_path)
 
+print("hostname: ", hostname, "\nneighbor list: ", neighbor_list, "\nprivate key: ", private_key, "\npublic key: ", public_key)
 # Utility functions
 def encrypt_with_public_key(public_key, message):
     return public_key.encrypt(
@@ -187,6 +189,7 @@ class RsaController(ControllerBase):
     
     @route('rsa', '/send_message1/{hostname_peer}', methods=['GET'])
     def send_message1(self, req, hostname_peer, **kwargs):
+        print("hostname_peer", hostname_peer)
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
         if hostname_peer in authorized_list:
             public_key_peer = authorized_list[hostname_peer]
@@ -367,7 +370,7 @@ class RsaController(ControllerBase):
     # Send secure message function
     def send_secure_message(peer_hostname, message):
         if peer_hostname in peer_list:
-            session_key = peer_list[peer_hostname]
+            session_key = peer_list[peer_hostname][2]
             encrypted_message = encrypt_with_session_key(session_key, message.encode('utf-8'))
             response = requests.post(f'http://{peer_hostname}:8080/receive_secure_message', data=encrypted_message)
             if response.status_code == 200:
