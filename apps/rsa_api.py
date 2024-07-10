@@ -184,7 +184,7 @@ def encrypt_with_session_key(session_key, json_obj):
 
 def decrypt_with_session_key(session_key, encrypted_data):
     # Decode the base64 encoded data
-    ciphertext = encrypted_data
+    ciphertext = base64.b64decode(encrypted_data)
     
     # Extract the IV and the actual ciphertext
     iv = ciphertext[:16]
