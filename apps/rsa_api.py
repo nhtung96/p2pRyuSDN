@@ -201,6 +201,7 @@ class RsaController(ControllerBase):
     def send_message1(self, req, hostname_peer, **kwargs):
         print("hostname_peer", hostname_peer)
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
+        print("anonce", anonce)
         if hostname_peer in authorized_list:
             public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
             if hostname_peer not in peer_list:
@@ -215,7 +216,7 @@ class RsaController(ControllerBase):
                 "anonce": base64.b64encode(encrypted_anonce).decode('utf-8')
             }
             # Send Message 1
-            print(message1)
+            print('message 1: ', message1)
             end_point = '/message1'
             url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
@@ -262,9 +263,10 @@ class RsaController(ControllerBase):
             # Prepare Message 2 (hostname, signed_anonce, bnonce)
             message2 = {
                 'hostname': hostname,
-                'signed_anonce': signed_anonce,
+                'signed_anonce': base64.b64encode(signed_anonce).decode('utf-8'),
                 'bnonce': base64.b64encode(encrypted_bnonce).decode('utf-8')
             }
+            print('message 2: ', message2)
             # Send Message 2
             end_point = '/message2'
             url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
@@ -285,8 +287,8 @@ class RsaController(ControllerBase):
     def receive_message2(self, req, **kwargs):
         data = ast.literal_eval(req.body.decode('utf-8'))
         hostname_peer = data.get('hostname')
-        signed_anonce = data.get('signed_anonce')
-        bnonce_encoded = data.get('bnonce')
+        signed_anonce = base64.b64decode(data.get('signed_anonce'))
+        bnonce_encoded = base64.b64decode(data.get('bnonce'))
 
         if hostname_peer in authorized_list:
             public_key_peer= load_public_key_pem(authorized_list[hostname_peer])
@@ -303,7 +305,7 @@ class RsaController(ControllerBase):
                 signed_bnonce = sign_with_private_key(private_key, decrypted_bnonce)
                 message3 = {
                     'hostname': hostname,
-                    'signed_bnonce': signed_bnonce
+                    'signed_bnonce': base64.b64encode(signed_bnonce).decode('utf-8')
                 }
                 end_point = '/message3'
                 url = 'http://{0}{1}'.format(hostname_peer,end_point)
@@ -327,7 +329,7 @@ class RsaController(ControllerBase):
     def receive_message3(self, req, **kwargs):
         data = ast.literal_eval(req.body.decode('utf-8'))
         hostname_peer = data.get('hostname')
-        signed_bnonce = data.get('signed_bnonce')
+        signed_bnonce = base64.b64decode(data.get('signed_bnonce'))
 
 
         if hostname_peer in authorized_list:
