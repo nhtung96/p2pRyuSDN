@@ -378,10 +378,11 @@ class RsaController(ControllerBase):
                 bnonce = peer_list[hostname_peer][1]
 
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
+                print("final peer list: ", peer_list)
                 return json.dumps({'status': 'Message 3 OK.'}), 200
             else:
                 return json.dumps({'error': "Signature verification failed for signed Bnonce."}), 403
-        print("final peer list: ", peer_list)
+        
     # Step 4: Receive and process Message 4 (OK)
     @route('rsa', '/message4', methods=['POST'])
     def receive_message4(self, req, **kwargs):
@@ -397,7 +398,8 @@ class RsaController(ControllerBase):
                 anonce = peer_list[hostname_peer][0]
                 bnonce = peer_list[hostname_peer][1]
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
-                save_peer_list('peer_list.txt', peer_list)
+                print("peer list final", peer_list)
+                #save_peer_list('/home/huutung/peer_list.txt', peer_list)
                 return json.dumps({'status': 'Message 4 OK.'}), 200
             else:
                 return json.dumps({'error': "Invalid status received."}), 400
