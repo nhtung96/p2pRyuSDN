@@ -293,14 +293,13 @@ class RsaController(ControllerBase):
 
         if hostname_peer in authorized_list:
             public_key_peer= load_public_key_pem(authorized_list[hostname_peer])
-            
-            if verify_signature(public_key_peer, signed_anonce, ):
+            anonce = peer_list[hostname_peer][0] 
+            if verify_signature(public_key_peer, signed_anonce, anonce):
                 # Decrypt Bnonce with own private key
-                bnonce = base64.b64decode(bnonce_encoded)
-                decrypted_bnonce = decrypt_with_private_key(private_key, bnonce)
+                decrypted_bnonce = decrypt_with_private_key(private_key, bnonce_encoded)
 
                 #Save bnonce
-                peer_list[hostname_peer][1] = bnonce
+                peer_list[hostname_peer][1] = decrypted_bnonce
 
                 # Prepare Message 3 (signed_bnonce)
                 signed_bnonce = sign_with_private_key(private_key, decrypted_bnonce)
@@ -336,8 +335,9 @@ class RsaController(ControllerBase):
 
         if hostname_peer in authorized_list:
             public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
+            bnonce = peer_list[hostname_peer][1] 
         # Verify signed Bnonce
-            if verify_signature(public_key_peer, signed_bnonce):
+            if verify_signature(public_key_peer, signed_bnonce, bnonce):
                 # Prepare Message 4 (OK)
                 message4 = {
                     'hostname': hostname,
