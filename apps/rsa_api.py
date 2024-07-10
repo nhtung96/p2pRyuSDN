@@ -14,6 +14,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import hashlib
 
+import re
 import json
 import ast
 
@@ -61,19 +62,21 @@ def load_neighbors(file_path):
 
 # Load authorized list from a file
 def load_authorized_list(file_path):
-    authorized = dict()
     with open(file_path, 'r') as file:
-        for line in file:
-            try:
-                hostname, pubkey = line.strip().split(maxsplit=1)  # Allow for spaces in the key
-                pubkey_obj = serialization.load_pem_public_key(
-                    pubkey.encode(),
-                    backend=default_backend()
-                )
-                authorized[hostname] = pubkey_obj
-            except ValueError as e:
-                print(f"Error loading public key for {hostname}: {e}")
-    return authorized
+        content = file.read()
+
+    # Regular expression to match each block
+    pattern = re.compile(r'(controller-\d+)(.*?-----END RSA PUBLIC KEY-----)', re.DOTALL)
+
+    matches = pattern.findall(content)
+
+    keys_dict = {}
+    for match in matches:
+        label, key = match
+        keys_dict[label] = key.strip()
+        
+    return keys_dict
+
 
 # Load keys
 def load_private_key(path):

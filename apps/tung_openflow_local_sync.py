@@ -56,8 +56,6 @@ supported_ofctl = {
 }
 
 
-peers = ['192.168.142.128:8080','192.168.142.131:8080']
-excluded_lists = ['192.168.142.130:8080']
 
 #tung
 def insert_flow(flow, peers_to_exclude=None, peers=None):
