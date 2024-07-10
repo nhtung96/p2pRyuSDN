@@ -206,7 +206,6 @@ class RsaController(ControllerBase):
             if hostname_peer not in peer_list:
                 peer_list[hostname_peer] = [None, None, None]  # Initialize peer_list entry
             peer_list[hostname_peer][0] = anonce 
-            print("anonce", anonce)
             # Encrypt Anonce with receiver's public key
             encrypted_anonce = encrypt_with_public_key(public_key_peer, anonce)
 
@@ -216,6 +215,7 @@ class RsaController(ControllerBase):
                 "anonce": base64.b64encode(encrypted_anonce).decode('utf-8')
             }
             # Send Message 1
+            print(message1)
             end_point = '/message1'
             url = 'http://{0}:8080{1}'.format(hostname_peer,end_point)
             headers = {'Content-type': 'application/json'}
@@ -242,10 +242,12 @@ class RsaController(ControllerBase):
 
         if hostname_peer in authorized_list:
             public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
-
+            if hostname_peer not in peer_list:
+                peer_list[hostname_peer] = [None, None, None]  # Initialize peer_list entry
             # Decrypt Anonce with own private key
             decrypted_anonce = decrypt_with_private_key(private_key, encrypted_anonce)
 
+            print("decrypted_anonce: ", decrypted_anonce)
             #save anonce
             peer_list[hostname_peer][0] = decrypted_anonce
             # Generate Bnonce and sign Anonce
