@@ -400,9 +400,9 @@ class RsaController(ControllerBase):
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("peer list final", peer_list)
                 #save_peer_list('/home/huutung/peer_list.txt', peer_list)
-                return json.dumps({'status': 'Message 4 OK.'}), 200
+                return 200
             else:
-                return json.dumps({'error': "Invalid status received."}), 400
+                return 400
 
 
     # Send secure message function
@@ -442,9 +442,9 @@ class RsaController(ControllerBase):
             session_key = peer_list[hostname_peer][2]
             decrypted_message = decrypt_with_session_key(session_key, message)
             print(f"Received message: {decrypted_message}")
-            return json.dumps({'status': 'Message received'}), 200
+            return 200
         else:
-            return json.dumps({'status': 'No message received'}), 400
+            return 400
         
 
     # Endpoint to view neighbor list
