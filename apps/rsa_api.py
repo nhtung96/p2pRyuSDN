@@ -416,7 +416,7 @@ class RsaController(ControllerBase):
             print("message", message, "encrypted message", encrypted_message)
             message_send = {
                 'hostname': hostname,
-                'encrypted message': encrypted_message
+                'encrypted_message': encrypted_message
             }
             end_point = '/secure_message'
             url = 'http://{0}:8080{1}'.format(hostname_peer, end_point)
