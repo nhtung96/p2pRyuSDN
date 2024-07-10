@@ -293,6 +293,7 @@ class RsaController(ControllerBase):
       
         if hostname_peer in authorized_list:
             public_key_peer= load_public_key_pem(authorized_list[hostname_peer])
+            print("peer_list: ", peer_list)
             anonce = peer_list[hostname_peer][0] 
             print("anonce", anonce)
             if verify_signature(public_key_peer, signed_anonce, anonce):
