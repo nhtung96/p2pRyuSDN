@@ -93,6 +93,13 @@ def load_public_key(path):
         public_key = serialization.load_pem_public_key(key_file.read(),backend=default_backend())
     return public_key
 
+def load_public_key_pem(pem_data):
+    return serialization.load_pem_public_key(
+        pem_data.encode('utf-8'), 
+        backend=default_backend()
+    )
+
+
 neighbor_list = load_neighbors(neighbors_path)
 authorized_list = load_authorized_list(authorized_list_path)
 private_key = load_private_key(private_key_path)
@@ -195,7 +202,7 @@ class RsaController(ControllerBase):
         print("hostname_peer", hostname_peer)
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
         if hostname_peer in authorized_list:
-            public_key_peer = authorized_list[hostname_peer]
+            public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
             if hostname_peer not in peer_list:
                 peer_list[hostname_peer] = [None, None, None]  # Initialize peer_list entry
             peer_list[hostname_peer][0] = anonce 
@@ -233,7 +240,7 @@ class RsaController(ControllerBase):
         encrypted_anonce = data.get('anonce')
 
         if hostname_peer in authorized_list:
-            public_key_peer = authorized_list[hostname_peer]
+            public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
 
             # Decrypt Anonce with own private key
             decrypted_anonce = decrypt_with_private_key(private_key, encrypted_anonce)
@@ -279,7 +286,7 @@ class RsaController(ControllerBase):
         bnonce_encoded = data.get('bnonce')
 
         if hostname_peer in authorized_list:
-            public_key_peer= authorized_list[hostname_peer]
+            public_key_peer= load_public_key_pem(authorized_list[hostname_peer])
             
             if verify_signature(public_key_peer, signed_anonce, ):
                 # Decrypt Bnonce with own private key
@@ -321,7 +328,7 @@ class RsaController(ControllerBase):
 
 
         if hostname_peer in authorized_list:
-            public_key_peer = authorized_list[hostname_peer]
+            public_key_peer = load_public_key_pem(authorized_list[hostname_peer])
         # Verify signed Bnonce
             if verify_signature(public_key_peer, signed_bnonce):
                 # Prepare Message 4 (OK)
