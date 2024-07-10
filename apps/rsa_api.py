@@ -138,6 +138,7 @@ def sign_with_private_key(private_key, message):
     )
 
 def verify_signature(public_key, signature, message):
+    print("enter verify")
     public_key.verify(
         signature,
         message,
@@ -297,6 +298,8 @@ class RsaController(ControllerBase):
             anonce = peer_list[hostname_peer][0] 
             print("anonce", anonce)
             if verify_signature(public_key_peer, signed_anonce, anonce):
+
+                print("verify anonce_signed ok")
                 # Decrypt Bnonce with own private key
                 decrypted_bnonce = decrypt_with_private_key(private_key, bnonce_encoded)
 
