@@ -406,10 +406,12 @@ class RsaController(ControllerBase):
 
 
     # Send secure message function
-    @route('rsa', '/send_test_message/{hostname_peer}/{message}', methods=['GET'])
-    def send_secure_message(self, req, hostname_peer, message, **kwargs):
+    @route('rsa', '/send_test_message/{hostname_peer}', methods=['POST'])
+    def send_secure_message(self, req, hostname_peer, **kwargs):
         if hostname_peer in peer_list:
             session_key = peer_list[hostname_peer][2]
+            message = ast.literal_eval(req.body.decode('utf-8'))
+            print("message:", message)
             encrypted_message = encrypt_with_session_key(session_key, message.encode('utf-8'))
             print("message", message, "encrypted message", encrypted_message)
             message_send = {
