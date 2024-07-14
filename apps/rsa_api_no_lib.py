@@ -383,7 +383,6 @@ class RsaController(ControllerBase):
 
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("final peer list: ", peer_list)
-                save_peer_list('/home/huutung/peer_list.txt', peer_list)
                 return 
             else:
                 return {'error': "Signature verification failed for signed Bnonce."}
@@ -404,7 +403,7 @@ class RsaController(ControllerBase):
                 bnonce = peer_list[hostname_peer][1]
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("peer list final", peer_list)
-                save_peer_list('/home/huutung/peer_list.txt', peer_list)
+                #save_peer_list('/home/huutung/peer_list.txt', peer_list)
                 return 
             
     # Send secure message function
@@ -461,9 +460,24 @@ class RsaController(ControllerBase):
 
 def save_peer_list(file_path, peer_list):
     with open(file_path, 'w') as file:
-        # Iterate over the new_data dictionary
-        for key, values in peer_list.items():
-            file.write(f"{key}:\n")
-            # Write each byte string in hexadecimal representation to the file
-            for value in values:
-                file.write(f"{value.hex()}\n")
+        for peer, session_key in peer_list.items():
+            file.write(f"{peer} {base64.b64encode(session_key).decode('utf-8')}\n")
+
+
+save_peer_list('peer_list.txt', peer_list)
+
+import base64
+
+def load_peer_list(file_path):
+    peer_list = {}
+    with open(file_path, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            if len(parts) == 2:
+                peer, session_key = parts
+                peer_list[peer] = base64.b64decode(session_key)
+    return peer_list
+
+# Example usage:
+loaded_peer_list = load_peer_list('peer_list.txt')
+print(loaded_peer_list)

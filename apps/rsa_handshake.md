@@ -33,3 +33,16 @@ i1.have an authorized list is public key list, authorized_list = [public_key_A]
 i2.have public_key_B and private_key_B
 i3.have neighbor list = [hostnameA]
 i4.have peer list = [hostnameA:sessionkey] 
+
+
+
+#private pem
+ssh-keygen -p -f id_rsa -m PEM
+
+#public key
+ssh-keygen -f id_rsa.pub -e -m pem > id_rsa.pub.pem
+
+
+
+#run ryu manager
+ryu-manager --observe-links --app-lists ~/ryu/ryu/app/tung_config_syn.py ~/ryu/ryu/app/tung_topology_syn.py ~/ryu/ryu/app/rsa_api.py
