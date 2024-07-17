@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import json
+import socket
 
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
@@ -23,10 +24,15 @@ from ryu.base import app_manager
 from ryu.lib import dpid as dpid_lib
 from ryu.topology.api import get_switch, get_link, get_host
 
+from rsa_api import load_peer_list
+from rsa_api import decrypt_with_session_key
+from rsa_api import encrypt_with_session_key
+
 #tung
 from pymongo import MongoClient
 import requests
 import ast
+import time
 # REST API for switch configuration
 #
 # get all the switches
@@ -50,44 +56,55 @@ import ast
 # where
 # <dpid>: datapath id in 16 hex
 
-#tung
-def topology_update(data, peers_to_exclude):
-	end_point = '/sync/topology/update'
-	peers_to_update = [p for p in peers if p in peers_to_exclude]
-	for peer in peers_to_update:
-		url = 'http://{0}{1}'.format(peer,end_point)
-		requests.post(url,json=data)
-		print(url)
+hostname = socket.gethostname() 
 
 #tung
-def insert_flow(flow, peers_to_exclude=None, peers=None):
-    end_point = '/sync/flow/insert'
+def send_secure_topology(topo, peers_to_exclude, peers):
+    end_point = '/secure-data'
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
-    print(peers_to_update)
-    peers_to_exclude = peers_to_exclude + peers_to_update
+    peers_to_exclude = peers_to_exclude + peers_to_update 
     for peer in peers_to_update:
         time.sleep(10)
-        url = 'http://{0}{1}'.format(peer,end_point)
+        url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
-        print(url)
-        data = {'exclude': excluded_lists, 'flow': flow}
+        data = {'action': 'topology-update', 'exclude': peers_to_exclude, 'topology': topo}
+        session_key = peers[peer][2]
+        encrypted_data = encrypt_with_session_key(session_key, data)
+        message_send = {
+                'hostname': hostname,
+                'encrypted_message': encrypted_data
+            }
         try:
-            response = requests.post(url, json=data, headers=headers)
+            response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
-            print("Flow inserted successfully at:", url)
+            print("Sent secure topology successfully to:", peer)
         except requests.exceptions.RequestException as e:
-            print("Error inserting flow at:", url)
+            print("Error to send to:", peer)
             print(e)
 
 #tung
-def delete_flow(flow, peers_to_exclude):
-    end_point = '/sync/flow/delete'
-    peers_to_update = [p for p in peers if p in peers_to_exclude]
+def send_secure_flow(flow, peers_to_exclude, peers, action):
+    end_point = '/secure-data'
+    peers_to_update = [p for p in peers if p not in peers_to_exclude]
+    peers_to_exclude = peers_to_exclude + peers_to_update
     for peer in peers_to_update:
-        url = 'http://{0}{1}'.format(peer,end_point)
+        time.sleep(10)
+        url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
-        requests.post(url,json=flow,headers=headers)
-        print(url)
+        session_key = peers[peer][2]
+        data = {'action': action, 'exclude': peers_to_exclude, 'flow': flow}
+        encrypted_data = encrypt_with_session_key(session_key, data)
+        message_send = {
+                'hostname': hostname,
+                'encrypted_message': encrypted_data
+            }
+        try:
+            response = requests.post(url, json=message_send, headers=headers)
+            response.raise_for_status()  
+            print("Sent secure flow successfully to:", peer)
+        except requests.exceptions.RequestException as e:
+            print("Error to send to:", peer)
+            print(e)  
 
 class TopologyAPI(app_manager.RyuApp):
     _CONTEXTS = {
@@ -136,52 +153,72 @@ class TopologyController(ControllerBase):
     def get_hosts(self, req, **kwargs):
         return self._hosts(req, **kwargs)
     
-    #tung
-    @route('topology', '/tung/topology',
-           methods=['GET'])
-    def get_local_topology(self, req, **kwargs):
-        return self._topology(req, **kwargs)
+
+    @route('flow', '/secure-data',
+           methods=['POST'])
+    def onReceive_secure_data(self, req, **kwargs):
+        # Get message
+        json_str = req.body.decode('utf-8')
+        data = json.loads(json.loads(json_str))
+        
+        # Decrypt message
+        peers = load_peer_list('/home/huutung/peer_list.txt')
+        hostname_peer = data.get('hostname')       
+        session_key = peers[hostname_peer][2]
+        decrypted_message = decrypt_with_session_key(session_key, data)
+        
+        peers_to_exclude = data['exclude']
+        action = decrypted_message['action']
+
+        if action == 'insert':
+            flow = decrypted_message['flow']
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['sdn']  
+            collection = db['flows']  
+            collection.insert_one(flow)
+            client.close()
+            send_secure_flow(flow, peers_to_exclude, peers, action)
+
+        elif action == 'delete':
+            flow = decrypted_message['flow']
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['sdn']  
+            collection = db['flows']  
+            collection.delete_one(flow)
+            client.close()
+            send_secure_flow(flow, peers_to_exclude, peers, action)
+
+        elif action == 'topology-update':
+            topo = decrypted_message['topology']
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['sdn']  
+            collection = db['topology']  
+            query = {'domain': hostname, 'record': 1}
+            update_data = {'$set': {'topo': topo}}
+            collection.update_one(query, update_data)
+            client.close()
+            send_secure_topology(topo, peers_to_exclude, peers)
+        else: 
+            print("Invalid action")
+            
+        return 
     
-    #custom p2p msg coming
-    @route('flow', '/sync/flow/insert',
-           methods=['POST'])
-    def onReceive_insert(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
-        flow = data['flow']
-        peers_to_exclude = data['exlude']
-        print(peers_to_exclude)
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['sdn']  
-        collection = db['flows']  
-        collection.insert_one(flow)
-        client.close()
-        return 
-    #custom p2p msg coming
-    @route('flow', '/sync/flow/delete',
-           methods=['POST'])
-    def onReceive_delete(self, req, **kwargs):
-        data = ast.literal_eval(req.body.decode('utf-8'))
-        flow = data['flow']
-        peers_to_exclude = data['exlude']
-        print(peers_to_exclude)
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['sdn']  
-        collection = db['flows']  
-        collection.delete_one(flow)
-        client.close()
-        return 
-        #tung
-    @route('topology', '/tung/topology/global',
+    #tung
+    @route('topology', '/p2p/topology/global',
            methods=['GET'])
     def get_global_topology(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')
         db = client['sdn']
         collection = db['topology']
-        topology = collection.find({}, {"_id":0})
+        topology = collection.find({}, {"record":1})
         body = json.dumps([item for item in topology])
         client.close()
         return Response(content_type='application/json', body=body)
-    
+    #tung
+    @route('topology', '/p2p/topology',
+           methods=['GET'])
+    def get_local_topology(self, req, **kwargs):
+        return self._topology(req, **kwargs)
     #tung
     @route('flows', '/tung/flows',
            methods=['GET'])
@@ -244,10 +281,19 @@ class TopologyController(ControllerBase):
         client = MongoClient('mongodb://localhost:27017/')
         db = client['sdn']
         collection = db['topology']
-        collection.delete_one({'domain': 1})
-        collection.insert_one({'domain': 1, 'data':topology})
+        collection.delete_one({'domain': hostname})
+        collection.insert_one({'domain': hostname, 'record': 1, 'topo': topology})
         client.close()
-
         body = json.dumps(topology)
+
+        #load peers to send p2p topology update
+        peers = load_peer_list('/home/huutung/peer_list.txt')
+
+        #exclude local 
+        excluded_list = [hostname]
+
+        #send update to all peers
+        send_secure_topology(body, excluded_list, peers)
+        
         return Response(content_type='application/json', body=body)
 

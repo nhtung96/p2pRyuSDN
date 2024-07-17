@@ -467,3 +467,18 @@ def save_peer_list(file_path, peer_list):
             # Write each byte string in hexadecimal representation to the file
             for value in values:
                 file.write(f"{value.hex()}\n")
+
+def load_peer_list(file_path):
+    peer_list_load = {}
+    current_key = None
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line.endswith(':'):
+                current_key = line[:-1]
+                peer_list_load[current_key] = []
+            elif current_key is not None:
+                peer_list_load[current_key].append(bytes.fromhex(line))
+
+    return peer_list_load

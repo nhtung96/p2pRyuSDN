@@ -45,4 +45,10 @@ ssh-keygen -f id_rsa.pub -e -m pem > id_rsa.pub.pem
 
 
 #run ryu manager
-ryu-manager --observe-links --app-lists ~/ryu/ryu/app/tung_config_syn.py ~/ryu/ryu/app/tung_topology_syn.py ~/ryu/ryu/app/rsa_api.py
+ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_flow_local_sync.py /home/huutung/p2pRyuSDN/apps/tung_flow_topo_onReceive_sync.py /home/huutung/p2pRyuSDN/apps/rsa_api.py ~/ryu/ryu/app/gui_topology/gui_topology.py
+
+
+
+
+Note:
+Tạo 1 endpoint cho gửi/nhận. action nào data gì thì bỏ trong body http post json hết

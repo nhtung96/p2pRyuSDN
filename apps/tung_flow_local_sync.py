@@ -16,6 +16,7 @@
 import logging
 import json
 import ast
+import socket
 
 from ryu.base import app_manager
 from ryu.controller import ofp_event
@@ -37,6 +38,8 @@ from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
 from ryu.app.wsgi import WSGIApplication
 
+from rsa_api import load_peer_list
+
 #tung
 from pymongo import MongoClient
 import json
@@ -56,19 +59,22 @@ supported_ofctl = {
 }
 
 
+hostname = socket.gethostname() 
+excluded_list = [hostname]
+
 
 #tung
-def insert_flow(flow, peers_to_exclude=None, peers=None):
+def insert_flow(flow, peers_to_exclude, peers):
     end_point = '/sync/flow/insert'
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
     print(peers_to_update)
     peers_to_exclude = peers_to_exclude + peers_to_update
     for peer in peers_to_update:
         time.sleep(10)
-        url = 'http://{0}{1}'.format(peer,end_point)
+        url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
         print(url)
-        data = {'exclude': excluded_lists, 'flow': flow}
+        data = {'exclude': peers_to_exclude, 'flow': flow}
         try:
             response = requests.post(url, json=data, headers=headers)
             response.raise_for_status()  
@@ -78,23 +84,24 @@ def insert_flow(flow, peers_to_exclude=None, peers=None):
             print(e)
 
 #tung
-def delete_flow(flow, peers_to_exclude):
+def delete_flow(flow, peers_to_exclude, peers):
     end_point = '/sync/flow/delete'
-    peers_to_update = [p for p in peers if p in peers_to_exclude]
+    peers_to_update = [p for p in peers if p not in peers_to_exclude]
+    print(peers_to_update)
+    peers_to_exclude = peers_to_exclude + peers_to_update
     for peer in peers_to_update:
-        url = 'http://{0}{1}'.format(peer,end_point)
+        time.sleep(10)
+        url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
-        requests.post(url,json=flow,headers=headers)
         print(url)
-            
-#tung
-def topology_update(data, peers_to_exclude):
-	end_point = '/sync/topology/update'
-	peers_to_update = [p for p in peers if p in peers_to_exclude]
-	for peer in peers_to_update:
-		url = 'http://{0}{1}'.format(peer,end_point)
-		requests.post(url,json=data)
-		print(url)
+        data = {'exclude': excluded_list, 'flow': flow}
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            response.raise_for_status()  
+            print("Flow deleted successfully at:", url)
+        except requests.exceptions.RequestException as e:
+            print("Error deleting flow at:", url)
+            print(e)         
 
 class CommandNotFoundError(RyuException):
     message = 'No such command : %(cmd)s'
@@ -236,15 +243,12 @@ class StatsController(ControllerBase):
             raise CommandNotFoundError(cmd=cmd)
         
         ofctl.mod_flow_entry(dp, flow, mod_cmd)
+        
         #tung
         if cmd == 'add':
             print('data to send to peer: ', flow)
-            #url = 'http://192.168.142.131:8080/sync/flow/insert'
-            #headers = {'Content-type': 'application/json'}
-            #print('start')
-            #requests.post(url, json=flow, headers=headers)
-            #print('done')
-            insert_flow(flow,excluded_lists,peers)
+            peers = load_peer_list('/home/huutung/peer_list.txt')
+            insert_flow(flow,excluded_list,peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
@@ -256,11 +260,8 @@ class StatsController(ControllerBase):
 
         if cmd == 'delete':
             print('data to send to peer: ', flow)
-            url = 'http://192.168.142.131:8080/sync/flow/delete'
-            headers = {'Content-type': 'application/json'}
-            print('start')
-            requests.post(url, json=flow, headers=headers)
-            print('done')
+            peers = load_peer_list('/home/huutung/peer_list.txt')
+            delete_flow(flow,excluded_list,peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
