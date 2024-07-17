@@ -176,24 +176,28 @@ class TopologyController(ControllerBase):
 
         if action == 'insert':
             flow = decrypted_message['flow']
+            print("flow: ", flow)
+            send_secure_flow(flow, peers_to_exclude, peers, action)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
             collection.insert_one(flow)
             client.close()
-            send_secure_flow(flow, peers_to_exclude, peers, action)
+            
 
         elif action == 'delete':
             flow = decrypted_message['flow']
+            send_secure_flow(flow, peers_to_exclude, peers, action)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
             collection.delete_one(flow)
             client.close()
-            send_secure_flow(flow, peers_to_exclude, peers, action)
+            
 
         elif action == 'topology-update':
             topo = decrypted_message['topology']
+            send_secure_topology(topo, peers_to_exclude, peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['topology']  
@@ -201,7 +205,6 @@ class TopologyController(ControllerBase):
             update_data = {'$set': {'topo': topo}}
             collection.update_one(query, update_data)
             client.close()
-            send_secure_topology(topo, peers_to_exclude, peers)
         else: 
             print("Invalid action")
 
