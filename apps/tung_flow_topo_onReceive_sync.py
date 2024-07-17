@@ -94,6 +94,7 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
         headers = {'Content-type': 'application/json'}
         session_key = peers[peer][2]
         data = {'action': action, 'exclude': peers_to_exclude, 'flow': flow}
+        print("data to send:", data)
         encrypted_data = encrypt_with_session_key(session_key, data)
         message = {
                 'hostname': hostname,
@@ -169,7 +170,7 @@ class TopologyController(ControllerBase):
         session_key = peers[hostname_peer][2]
         message = data.get('encrypted_message')
         decrypted_message = decrypt_with_session_key(session_key, message)
-        
+        print("decrypted_data: ", decrypted_message)
         peers_to_exclude = decrypted_message['exclude']
         action = decrypted_message['action']
 
