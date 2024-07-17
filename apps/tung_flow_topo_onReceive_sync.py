@@ -170,7 +170,7 @@ class TopologyController(ControllerBase):
         message = data.get('encrypted_message')
         decrypted_message = decrypt_with_session_key(session_key, message)
         
-        peers_to_exclude = data['exclude']
+        peers_to_exclude = decrypted_message['exclude']
         action = decrypted_message['action']
 
         if action == 'insert':
