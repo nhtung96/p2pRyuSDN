@@ -52,3 +52,28 @@ ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_flow_l
 
 Note:
 Tạo 1 endpoint cho gửi/nhận. action nào data gì thì bỏ trong body http post json hết
+
+
+curl -X GET http://controller-1:8080/send_message1/controller-2
+
+
+curl -X POST -d '{
+    "dpid": 1,
+    "cookie": 0,
+    "cookie_mask": 1,
+    "table_id": 0,
+    "idle_timeout": 0,
+    "hard_timeout": 0,
+    "priority": 1,
+    "flags": 1,
+    "match":{
+        "in_port":1,
+        "eth_src": "00:00:00:00:00:01"
+    },
+    "actions":[
+        {
+            "type":"OUTPUT",
+            "port": 2
+        }
+    ]
+ }' http://localhost:8080/stats/flowentry/add

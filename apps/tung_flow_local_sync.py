@@ -39,6 +39,7 @@ from ryu.app.wsgi import Response
 from ryu.app.wsgi import WSGIApplication
 
 from rsa_api import load_peer_list
+from rsa_api import encrypt_with_session_key
 
 #tung
 from pymongo import MongoClient
@@ -64,8 +65,8 @@ excluded_list = [hostname]
 
 
 #tung
-def insert_flow(flow, peers_to_exclude, peers):
-    end_point = '/sync/flow/insert'
+def send_secure_flow(flow, peers_to_exclude, peers, action):
+    end_point = '/secure-data'
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
     print(peers_to_update)
     peers_to_exclude = peers_to_exclude + peers_to_update
@@ -73,35 +74,21 @@ def insert_flow(flow, peers_to_exclude, peers):
         time.sleep(10)
         url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
-        print(url)
-        data = {'exclude': peers_to_exclude, 'flow': flow}
+        session_key = peers[peer][2]
+        data = {'action': action, 'exclude': peers_to_exclude, 'flow': flow}
+        encrypted_data = encrypt_with_session_key(session_key, data)
+        message_send = {
+                'hostname': hostname,
+                'encrypted_message': encrypted_data
+            }
         try:
-            response = requests.post(url, json=data, headers=headers)
+            response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
-            print("Flow inserted successfully at:", url)
+            print("Sent secure flow successfully to:", peer)
         except requests.exceptions.RequestException as e:
-            print("Error inserting flow at:", url)
+            print("Error to send to:", peer)
             print(e)
-
-#tung
-def delete_flow(flow, peers_to_exclude, peers):
-    end_point = '/sync/flow/delete'
-    peers_to_update = [p for p in peers if p not in peers_to_exclude]
-    print(peers_to_update)
-    peers_to_exclude = peers_to_exclude + peers_to_update
-    for peer in peers_to_update:
-        time.sleep(10)
-        url = 'http://{0}:8080{1}'.format(peer,end_point)
-        headers = {'Content-type': 'application/json'}
-        print(url)
-        data = {'exclude': excluded_list, 'flow': flow}
-        try:
-            response = requests.post(url, json=data, headers=headers)
-            response.raise_for_status()  
-            print("Flow deleted successfully at:", url)
-        except requests.exceptions.RequestException as e:
-            print("Error deleting flow at:", url)
-            print(e)         
+    
 
 class CommandNotFoundError(RyuException):
     message = 'No such command : %(cmd)s'
@@ -248,20 +235,18 @@ class StatsController(ControllerBase):
         if cmd == 'add':
             print('data to send to peer: ', flow)
             peers = load_peer_list('/home/huutung/peer_list.txt')
-            insert_flow(flow,excluded_list,peers)
+            send_secure_flow(flow,excluded_list,peers, 'insert')
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
             collection.insert_one(flow)
-            client.close()
-            
+            client.close()       
             print('data to write to mongodb: ', flow)
-
 
         if cmd == 'delete':
             print('data to send to peer: ', flow)
             peers = load_peer_list('/home/huutung/peer_list.txt')
-            delete_flow(flow,excluded_list,peers)
+            send_secure_flow(flow,excluded_list,peers,'delete')
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  

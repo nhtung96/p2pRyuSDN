@@ -193,14 +193,14 @@ class TopologyController(ControllerBase):
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['topology']  
-            query = {'domain': hostname, 'record': 1}
+            query = {'domain': hostname_peer, 'record': 1}
             update_data = {'$set': {'topo': topo}}
             collection.update_one(query, update_data)
             client.close()
             send_secure_topology(topo, peers_to_exclude, peers)
         else: 
             print("Invalid action")
-            
+
         return 
     
     #tung
@@ -220,7 +220,7 @@ class TopologyController(ControllerBase):
     def get_local_topology(self, req, **kwargs):
         return self._topology(req, **kwargs)
     #tung
-    @route('flows', '/tung/flows',
+    @route('flows', '/p2p/flows',
            methods=['GET'])
     def get_full_flows(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')

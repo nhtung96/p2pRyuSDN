@@ -408,7 +408,7 @@ class RsaController(ControllerBase):
                 return 
             
     # Send secure message function
-    @route('rsa', '/send_test_message/{hostname_peer}', methods=['POST'])
+    @route('rsa', '/send_secure/{hostname_peer}', methods=['POST'])
     def send_secure_message(self, req, hostname_peer, **kwargs):
         if hostname_peer in peer_list:
             session_key = peer_list[hostname_peer][2]
