@@ -77,10 +77,11 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
         session_key = peers[peer][2]
         data = {'action': action, 'exclude': peers_to_exclude, 'flow': flow}
         encrypted_data = encrypt_with_session_key(session_key, data)
-        message_send = {
+        message = {
                 'hostname': hostname,
                 'encrypted_message': encrypted_data
             }
+        message_send = json.dumps(message)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  

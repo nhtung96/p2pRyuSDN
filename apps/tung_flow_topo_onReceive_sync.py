@@ -70,10 +70,11 @@ def send_secure_topology(topo, peers_to_exclude, peers):
         data = {'action': 'topology-update', 'exclude': peers_to_exclude, 'topology': topo}
         session_key = peers[peer][2]
         encrypted_data = encrypt_with_session_key(session_key, data)
-        message_send = {
+        message = {
                 'hostname': hostname,
                 'encrypted_message': encrypted_data
             }
+        message_send = json.dumps(message)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
@@ -94,10 +95,11 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
         session_key = peers[peer][2]
         data = {'action': action, 'exclude': peers_to_exclude, 'flow': flow}
         encrypted_data = encrypt_with_session_key(session_key, data)
-        message_send = {
+        message = {
                 'hostname': hostname,
                 'encrypted_message': encrypted_data
             }
+        message_send = json.dumps(message)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
@@ -154,18 +156,19 @@ class TopologyController(ControllerBase):
         return self._hosts(req, **kwargs)
     
 
-    @route('flow', '/secure-data',
+    @route('rsa', '/secure-data',
            methods=['POST'])
     def onReceive_secure_data(self, req, **kwargs):
         # Get message
         json_str = req.body.decode('utf-8')
         data = json.loads(json.loads(json_str))
-        
+        print("data-secure: ", data)
         # Decrypt message
         peers = load_peer_list('/home/huutung/peer_list.txt')
         hostname_peer = data.get('hostname')       
         session_key = peers[hostname_peer][2]
-        decrypted_message = decrypt_with_session_key(session_key, data)
+        message = data.get('encrypted_message')
+        decrypted_message = decrypt_with_session_key(session_key, message)
         
         peers_to_exclude = data['exclude']
         action = decrypted_message['action']
