@@ -58,17 +58,17 @@ curl -X GET http://controller-1:8080/send_message1/controller-2
 
 
 curl -X POST -d '{
-    "dpid": 1,
+    "dpid": 3,
     "cookie": 0,
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
     "hard_timeout": 0,
-    "priority": 1,
+    "priority": 4,
     "flags": 1,
     "match":{
-        "in_port":1,
-        "eth_src": "00:00:00:00:00:01"
+        "in_port":4,
+        "eth_src": "00:00:00:00:00:04"
     },
     "actions":[
         {

@@ -57,7 +57,7 @@ import time
 # <dpid>: datapath id in 16 hex
 
 hostname = socket.gethostname() 
-
+excluded_list = [hostname]
 #tung
 def send_secure_topology(topo, peers_to_exclude, peers):
     end_point = '/secure-data'
@@ -203,7 +203,7 @@ class TopologyController(ControllerBase):
             collection = db['topology']  
             query = {'domain': hostname_peer, 'record': 1}
             update_data = {'$set': {'topo': topo}}
-            collection.update_one(query, update_data)
+            collection.update_one(query, update_data, upsert=True)
             client.close()
         else: 
             print("Invalid action")
@@ -284,23 +284,14 @@ class TopologyController(ControllerBase):
         hosts = [h.to_dict() for h in n_host_list]
 
         topology = {"switches": switches, "links": links, "hosts": hosts}
-
+        body = json.dumps(topology)
+        peers = load_peer_list('/home/huutung/peer_list.txt')
+        send_secure_topology(body, excluded_list, peers)
         client = MongoClient('mongodb://localhost:27017/')
         db = client['sdn']
         collection = db['topology']
         collection.delete_one({'domain': hostname})
         collection.insert_one({'domain': hostname, 'record': 1, 'topo': topology})
         client.close()
-        body = json.dumps(topology)
-
-        #load peers to send p2p topology update
-        peers = load_peer_list('/home/huutung/peer_list.txt')
-
-        #exclude local 
-        excluded_list = [hostname]
-
-        #send update to all peers
-        send_secure_topology(body, excluded_list, peers)
-        
         return Response(content_type='application/json', body=body)
 
