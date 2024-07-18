@@ -231,7 +231,11 @@ class TopologyController(ControllerBase):
         db = client['sdn']
         collection = db['topology']
         data = collection.find()
-        result = {'switches': [doc['topo']['switches'] for doc in data]}
+        result = {'switches': []}
+        for doc in data:
+            switches = doc['topo']['switches']
+            result['switches'].extend(switches)
+        result['switches'] = list(set(result['switches']))
         switches = json.dumps(result)
         client.close()
         return Response(content_type='application/json', body=switches)
@@ -244,7 +248,11 @@ class TopologyController(ControllerBase):
         db = client['sdn']
         collection = db['topology']
         data = collection.find()
-        result = {'links': [doc['topo']['links'] for doc in data]}
+        result = {'links': []}
+        for doc in data:
+            switches = doc['topo']['links']
+            result['links'].extend(switches)
+        result['links'] = list(set(result['links']))
         links = json.dumps(result)
         client.close()
         return Response(content_type='application/json', body=links)
