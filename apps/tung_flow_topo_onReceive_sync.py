@@ -197,7 +197,7 @@ class TopologyController(ControllerBase):
 
         elif action == 'topology-update':
             data = decrypted_message['topology']
-            topo = json.loads(topo)
+            topo = json.loads(data)
             send_secure_topology(topo, peers_to_exclude, peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
