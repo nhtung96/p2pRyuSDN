@@ -222,6 +222,31 @@ class TopologyController(ControllerBase):
         body = json.dumps([item for item in topology])
         client.close()
         return Response(content_type='application/json', body=body)
+    
+    #tung
+    @route('topology', '/p2p/swwitches/global',
+        methods=['GET'])
+    def get_global_switches(self, req, **kwargs):
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['sdn']
+        collection = db['topology']
+        data = collection.find()
+        result = {'switches': [doc['topo']['switches'] for doc in data]}
+        client.close()
+        return Response(content_type='application/json', body=result)
+    
+    #tung
+    @route('topology', '/p2p/links/global',
+        methods=['GET'])
+    def get_global_links(self, req, **kwargs):
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['sdn']
+        collection = db['topology']
+        data = collection.find()
+        result = {'links': [doc['topo']['links'] for doc in data]}
+        client.close()
+        return Response(content_type='application/json', body=result)
+
     #tung
     @route('topology', '/p2p/topology',
            methods=['GET'])
