@@ -64,7 +64,7 @@ def send_secure_topology(topo, peers_to_exclude, peers):
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
     peers_to_exclude = peers_to_exclude + peers_to_update 
     for peer in peers_to_update:
-        time.sleep(10)
+        time.sleep(1)
         url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
         data = {'action': 'topology-update', 'exclude': peers_to_exclude, 'topology': topo}
@@ -89,7 +89,7 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
     peers_to_exclude = peers_to_exclude + peers_to_update
     for peer in peers_to_update:
-        time.sleep(10)
+        time.sleep(1)
         url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
         session_key = peers[peer][2]
@@ -196,7 +196,8 @@ class TopologyController(ControllerBase):
             
 
         elif action == 'topology-update':
-            topo = decrypted_message['topology']
+            data = decrypted_message['topology']
+            topo = json.loads(topo)
             send_secure_topology(topo, peers_to_exclude, peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
@@ -227,7 +228,7 @@ class TopologyController(ControllerBase):
     def get_local_topology(self, req, **kwargs):
         return self._topology(req, **kwargs)
     #tung
-    @route('flows', '/p2p/flows',
+    @route('flows', '/p2p/flows/global',
            methods=['GET'])
     def get_full_flows(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')

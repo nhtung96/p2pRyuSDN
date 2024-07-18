@@ -71,7 +71,7 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
     print(peers_to_update)
     peers_to_exclude = peers_to_exclude + peers_to_update
     for peer in peers_to_update:
-        time.sleep(10)
+        time.sleep(1)
         url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
         session_key = peers[peer][2]
