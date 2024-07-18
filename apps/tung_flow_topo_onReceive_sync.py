@@ -224,7 +224,7 @@ class TopologyController(ControllerBase):
         return Response(content_type='application/json', body=body)
     
     #tung
-    @route('topology', '/p2p/swwitches/global',
+    @route('topology', '/p2p/global/switches',
         methods=['GET'])
     def get_global_switches(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')
@@ -232,11 +232,12 @@ class TopologyController(ControllerBase):
         collection = db['topology']
         data = collection.find()
         result = {'switches': [doc['topo']['switches'] for doc in data]}
+        switches = json.dumps(result)
         client.close()
-        return Response(content_type='application/json', body=result)
+        return Response(content_type='application/json', body=switches)
     
     #tung
-    @route('topology', '/p2p/links/global',
+    @route('topology', '/p2p/global/links',
         methods=['GET'])
     def get_global_links(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')
@@ -244,8 +245,9 @@ class TopologyController(ControllerBase):
         collection = db['topology']
         data = collection.find()
         result = {'links': [doc['topo']['links'] for doc in data]}
+        links = json.dumps(result)
         client.close()
-        return Response(content_type='application/json', body=result)
+        return Response(content_type='application/json', body=links)
 
     #tung
     @route('topology', '/p2p/topology',
@@ -253,7 +255,7 @@ class TopologyController(ControllerBase):
     def get_local_topology(self, req, **kwargs):
         return self._topology(req, **kwargs)
     #tung
-    @route('flows', '/p2p/flows/global',
+    @route('flows', '/p2p/global/flows',
            methods=['GET'])
     def get_full_flows(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')
