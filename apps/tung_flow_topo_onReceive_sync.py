@@ -231,10 +231,10 @@ class TopologyController(ControllerBase):
         db = client['sdn']
         collection = db['topology']
         data = collection.find()
-        result = {'switches': []}
+        result = []
         for doc in data:
             switches = doc['topo']['switches']
-            result['switches'].extend(switches)
+            result.extend(switches)
         #result['switches'] = list(set(tuple(sorted(switch.items())) for switch in result['switches']))
         switches = json.dumps(result)
         client.close()
@@ -248,10 +248,10 @@ class TopologyController(ControllerBase):
         db = client['sdn']
         collection = db['topology']
         data = collection.find()
-        result = {'links': []}
+        result = []
         for doc in data:
             switches = doc['topo']['links']
-            result['links'].extend(switches)
+            result.extend(switches)
         #result['links'] = list(set(tuple(sorted(links.items())) for switch in result['links']))
         links = json.dumps(result)
         client.close()
