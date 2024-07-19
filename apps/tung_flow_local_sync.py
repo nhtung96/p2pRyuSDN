@@ -47,6 +47,7 @@ import json
 import requests
 from bson import json_util
 import time
+import os
 
 LOG = logging.getLogger('ryu.app.ofctl_rest')
 
@@ -235,8 +236,16 @@ class StatsController(ControllerBase):
         #tung
         if cmd == 'add':
             print('data to send to peer: ', flow)
-            peers = load_peer_list('/home/huutung/peer_list.txt')
-            send_secure_flow(flow,excluded_list,peers, 'insert')
+
+            peer_list_path = '/home/huutung/peer_list.txt'
+            # Check if the peer list file exists
+            if os.path.exists(peer_list_path):
+                peers = load_peer_list(peer_list_path)
+                send_secure_flow(flow,excluded_list,peers, 'insert')
+            else:
+                # Handle the case when the file doesn't exist
+                print(f"Peer list file does not exist: {peer_list_path}")
+
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  
@@ -246,8 +255,14 @@ class StatsController(ControllerBase):
 
         if cmd == 'delete':
             print('data to send to peer: ', flow)
-            peers = load_peer_list('/home/huutung/peer_list.txt')
-            send_secure_flow(flow,excluded_list,peers,'delete')
+            peer_list_path = '/home/huutung/peer_list.txt'
+            # Check if the peer list file exists
+            if os.path.exists(peer_list_path):
+                peers = load_peer_list(peer_list_path)
+                send_secure_flow(flow,excluded_list,peers, 'delete')
+            else:
+                # Handle the case when the file doesn't exist
+                print(f"Peer list file does not exist: {peer_list_path}")
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['flows']  

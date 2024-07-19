@@ -33,6 +33,7 @@ from pymongo import MongoClient
 import requests
 import ast
 import time
+import os
 # REST API for switch configuration
 #
 # get all the switches
@@ -319,8 +320,16 @@ class TopologyController(ControllerBase):
 
         topology = {"switches": switches, "links": links, "hosts": hosts}
         body = json.dumps(topology)
-        peers = load_peer_list('/home/huutung/peer_list.txt')
-        send_secure_topology(body, excluded_list, peers)
+        
+        peer_list_path = '/home/huutung/peer_list.txt'
+        # Check if the peer list file exists
+        if os.path.exists(peer_list_path):
+            peers = load_peer_list(peer_list_path)
+            send_secure_topology(body, excluded_list, peers)
+        else:
+            # Handle the case when the file doesn't exist
+            print(f"Peer list file does not exist: {peer_list_path}")
+        
         client = MongoClient('mongodb://localhost:27017/')
         db = client['sdn']
         collection = db['topology']
