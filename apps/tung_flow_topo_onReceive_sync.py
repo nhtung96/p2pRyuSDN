@@ -76,6 +76,7 @@ def send_secure_topology(topo, peers_to_exclude, peers):
                 'encrypted_message': encrypted_data
             }
         message_send = json.dumps(message)
+        print('========Sending encrypted data===========\n', message_send)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
@@ -102,6 +103,7 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
                 'encrypted_message': encrypted_data
             }
         message_send = json.dumps(message)
+        print('========Sending encrypted data===========\n', message_send)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
@@ -164,14 +166,14 @@ class TopologyController(ControllerBase):
         # Get message
         json_str = req.body.decode('utf-8')
         data = json.loads(json.loads(json_str))
-        print("data-secure: ", data)
+        print("========RECEIVED ENCRYPTED DATA===========\n", data)
         # Decrypt message
         peers = load_peer_list('/home/huutung/peer_list.txt')
         hostname_peer = data.get('hostname')       
         session_key = peers[hostname_peer][2]
         message = data.get('encrypted_message')
         decrypted_message = decrypt_with_session_key(session_key, message)
-        print("decrypted_data: ", decrypted_message)
+        print("========DECRYPTED DATA===========\n", decrypted_message)
         peers_to_exclude = decrypted_message['exclude']
         action = decrypted_message['action']
 
@@ -184,7 +186,7 @@ class TopologyController(ControllerBase):
             collection = db['flows']  
             collection.insert_one(flow)
             client.close()
-            
+            print("========FLOW UPDATED===========\n")
 
         elif action == 'delete':
             flow = decrypted_message['flow']
@@ -194,6 +196,7 @@ class TopologyController(ControllerBase):
             collection = db['flows']  
             collection.delete_one(flow)
             client.close()
+            print("========FLOW UPDATED===========\n")
             
 
         elif action == 'topology-update':
@@ -207,6 +210,7 @@ class TopologyController(ControllerBase):
             update_data = {'$set': {'topo': topo}}
             collection.update_one(query, update_data, upsert=True)
             client.close()
+            print("========TOPOLOGY UPDATED===========\n")
         else: 
             print("Invalid action")
 
@@ -320,7 +324,7 @@ class TopologyController(ControllerBase):
 
         topology = {"switches": switches, "links": links, "hosts": hosts}
         body = json.dumps(topology)
-        
+
         peer_list_path = '/home/huutung/peer_list.txt'
         # Check if the peer list file exists
         if os.path.exists(peer_list_path):

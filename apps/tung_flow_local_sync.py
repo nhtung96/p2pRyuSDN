@@ -83,6 +83,7 @@ def send_secure_flow(flow, peers_to_exclude, peers, action):
                 'encrypted_message': encrypted_data
             }
         message_send = json.dumps(message)
+        print('========Sending encrypted data===========\n', message_send)
         try:
             response = requests.post(url, json=message_send, headers=headers)
             response.raise_for_status()  
