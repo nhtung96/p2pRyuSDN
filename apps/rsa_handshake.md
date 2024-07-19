@@ -59,84 +59,105 @@ curl -X GET http://controller-1:8080/send_message1/controller-2
 
 curl -X POST -d '{
     "dpid": 1,
-    "cookie": 0,
+    "cookie": 1,
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
-    "hard_timeout": 0,
+    "hard_timeout": 00,
     "priority": 1,
     "flags": 1,
     "match":{
-        "in_port":1,
-        "eth_src": "00:00:00:00:00:01"
+        "in_port":1
     },
-    "actions":[
+    "instructions": [
         {
-            "type":"OUTPUT",
-            "port": 2
+            "type": "APPLY_ACTIONS",
+            "actions": [
+                {
+                    "max_len": 65535,
+                    "port": 2,
+                    "type": "OUTPUT"
+                }
+            ]
         }
     ]
  }' http://localhost:8080/stats/flowentry/add
 
- curl -X POST -d '{
+curl -X POST -d '{
     "dpid": 2,
-    "cookie": 0,
+    "cookie": 1,
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
-    "hard_timeout": 0,
+    "hard_timeout": 00,
     "priority": 1,
     "flags": 1,
     "match":{
-        "in_port":2,
-        "eth_src": "00:00:00:00:00:01"
+        "in_port":1
     },
-    "actions":[
+    "instructions": [
         {
-            "type":"OUTPUT",
-            "port": 1
+            "type": "APPLY_ACTIONS",
+            "actions": [
+                {
+                    "max_len": 65535,
+                    "port": 2,
+                    "type": "OUTPUT"
+                }
+            ]
         }
     ]
  }' http://localhost:8080/stats/flowentry/add
+
 
  curl -X POST -d '{
     "dpid": 1,
-    "cookie": 0,
+    "cookie": 1,
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
-    "hard_timeout": 0,
+    "hard_timeout": 00,
     "priority": 1,
     "flags": 1,
     "match":{
-        "in_port":2,
-        "eth_src": "00:00:00:00:00:02"
+        "in_port":2
     },
-    "actions":[
+    "instructions": [
         {
-            "type":"OUTPUT",
-            "port": 1
+            "type": "APPLY_ACTIONS",
+            "actions": [
+                {
+                    "max_len": 65535,
+                    "port": 1,
+                    "type": "OUTPUT"
+                }
+            ]
         }
     ]
  }' http://localhost:8080/stats/flowentry/add
 
- curl -X POST -d '{
+curl -X POST -d '{
     "dpid": 2,
-    "cookie": 0,
+    "cookie": 1,
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
-    "hard_timeout": 0,
+    "hard_timeout": 00,
     "priority": 1,
     "flags": 1,
     "match":{
-        "in_port":1,
-        "eth_src": "00:00:00:00:00:02"
+        "in_port":2
     },
-    "actions":[
+    "instructions": [
         {
-            "type":"OUTPUT",
-            "port": 2
+            "type": "APPLY_ACTIONS",
+            "actions": [
+                {
+                    "max_len": 65535,
+                    "port": 1,
+                    "type": "OUTPUT"
+                }
+            ]
         }
     ]
  }' http://localhost:8080/stats/flowentry/add
