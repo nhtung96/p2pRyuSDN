@@ -216,7 +216,7 @@ class RsaController(ControllerBase):
     
     @route('rsa', '/p2p/join/{hostname_peer}', methods=['GET'])
     def send_message1(self, req, hostname_peer, **kwargs):
-        print("hostname_peer", hostname_peer)
+        print("===================", hostname, "Request to join " , hostname_peer, '\n')
         anonce = os.urandom(32)  # Replace with your Anonce generation logic
         print("========Anonce Created===========\n", anonce)
         if hostname_peer in authorized_list:
