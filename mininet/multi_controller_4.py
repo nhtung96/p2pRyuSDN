@@ -20,15 +20,15 @@ def multiControllerNet():
     c3 = net.addController('c3', controller=RemoteController, ip=c3_ip)
 
     info("*** Creating switches\n")
-    s1 = net.addSwitch('s1', dpid="0000000000000001")
-    s2 = net.addSwitch('s2', dpid="0000000000000002")
-    s3 = net.addSwitch('s3', dpid="0000000000000003")
-    s4 = net.addSwitch('s4', dpid="0000000000000004")
-    s5 = net.addSwitch('s5', dpid="0000000000000005")
-    s6 = net.addSwitch('s6', dpid="0000000000000006")
-    s7 = net.addSwitch('s7', dpid="0000000000000007")
-    s8 = net.addSwitch('s8', dpid="0000000000000008")
-    s9 = net.addSwitch('s9', dpid="0000000000000009")
+    s1 = net.addSwitch('s1', dpid="0000000000000001", protocols='OpenFlow13')
+    s2 = net.addSwitch('s2', dpid="0000000000000002", protocols='OpenFlow13')
+    s3 = net.addSwitch('s3', dpid="0000000000000003", protocols='OpenFlow13')
+    s4 = net.addSwitch('s4', dpid="0000000000000004", protocols='OpenFlow13')
+    s5 = net.addSwitch('s5', dpid="0000000000000005", protocols='OpenFlow13')
+    s6 = net.addSwitch('s6', dpid="0000000000000006", protocols='OpenFlow13')
+    s7 = net.addSwitch('s7', dpid="0000000000000007", protocols='OpenFlow13')
+    s8 = net.addSwitch('s8', dpid="0000000000000008", protocols='OpenFlow13')
+    s9 = net.addSwitch('s9', dpid="0000000000000009", protocols='OpenFlow13')
 
     info("*** Creating hosts\n")
     h1 = net.addHost('h1', mac='00:00:00:00:00:01', ip='10.0.0.1/24')
@@ -56,7 +56,7 @@ def multiControllerNet():
     net.addLink(s2, s3)
     net.addLink(s3, s1)
 
-    net.addLink(s4, h5)
+    net.addLink(s4, s5)
     net.addLink(s5, s6)
     net.addLink(s6, s4)
 
