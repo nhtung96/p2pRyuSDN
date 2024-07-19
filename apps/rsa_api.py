@@ -20,6 +20,9 @@ import ast
 
 import socket
 
+from pymongo import MongoClient
+import os
+
 test_html = """
 <!DOCTYPE html>
 <html>
@@ -405,8 +408,32 @@ class RsaController(ControllerBase):
                 peer_list[hostname_peer][2] = compute_session_key(anonce, bnonce)
                 print("peer list final", peer_list)
                 save_peer_list('/home/huutung/peer_list.txt', peer_list)
-                return 
             
+                # drop local 
+                local_db_name = 'sdn'
+                remote_db_name = 'sdn'
+                client = MongoClient('mongodb://localhost:27017/')
+                remote_db_uri = 'mongodb://{hostname_peer}:27017'
+
+
+                client.drop_database('sdn')
+                print(f'Dropped local SDN database: {local_db_name}')
+
+                # opy remote MongoDB database using mongodump and mongorestore
+                # Create a dump of the remote MongoDB database
+                dump_command = f'mongodump --uri="{remote_db_uri}" --db {remote_db_name} --out /tmp/mongodump'
+                os.system(dump_command)
+                print(f'Dumped remote database: {remote_db_name} to /tmp/mongodump')
+
+                # Restore the dump to the local MongoDB instance
+                restore_command = f'mongorestore --db {local_db_name} --dir /tmp/mongodump/{remote_db_name}'
+                os.system(restore_command)
+                print(f'Restored remote database: {remote_db_name} to local database: {local_db_name}')
+
+                # Clean up the dump files
+                os.system('rm -rf /tmp/mongodump')
+                print('Cleaned up temporary dump files')        
+        return
     # Send secure message function
     @route('rsa', '/send_secure/{hostname_peer}', methods=['POST'])
     def send_secure_message(self, req, hostname_peer, **kwargs):
