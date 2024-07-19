@@ -235,8 +235,7 @@ class TopologyController(ControllerBase):
         for doc in data:
             switches = doc['topo']['switches']
             result.extend(switches)
-        unique_switches = [dict(switch) for switch in {frozenset(switch.items()) for switch in result}]
-        switches = json.dumps(unique_switches)
+        switches = json.dumps(result)
         client.close()
         return Response(content_type='application/json', body=switches)
     
@@ -252,8 +251,7 @@ class TopologyController(ControllerBase):
         for doc in data:
             links = doc['topo']['links']
             result.extend(links)
-        unique_links = [dict(link) for link in {frozenset(link.items()) for link in result}]
-        links = json.dumps(unique_links)
+        links = json.dumps(result)
         client.close()
         return Response(content_type='application/json', body=links)
 
