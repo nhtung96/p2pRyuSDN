@@ -413,7 +413,7 @@ class RsaController(ControllerBase):
                 local_db_name = 'sdn'
                 remote_db_name = 'sdn'
                 client = MongoClient('mongodb://localhost:27017/')
-                remote_db_uri = 'mongodb://{hostname_peer}:27017'
+                remote_db_uri = f'mongodb://{hostname_peer}:27017'
 
 
                 client.drop_database('sdn')
