@@ -63,11 +63,11 @@ curl -X POST -d '{
     "cookie_mask": 1,
     "table_id": 0,
     "idle_timeout": 0,
-    "hard_timeout": 00,
+    "hard_timeout": 0,
     "priority": 1,
     "flags": 1,
     "match":{
-        "in_port":1
+        "in_port":1,
     },
     "instructions": [
         {
@@ -81,7 +81,7 @@ curl -X POST -d '{
             ]
         }
     ]
- }' http://localhost:8080/stats/flowentry/add
+ }' http://{hostname}:8080/stats/flowentry/add
 
 curl -X POST -d '{
     "dpid": 2,
