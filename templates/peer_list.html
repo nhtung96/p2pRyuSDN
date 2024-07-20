@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer List</title>
+    <script>
+        function fetchPeerList() {
+            const hostname = document.getElementById('hostname').value;
+            const url = `http://${hostname}:8080/p2p/peer_list`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('peerList').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => alert('Request Failed: ' + error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Peer List</h1>
+    <label for="hostname">Hostname:</label>
+    <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+    <br>
+    <button onclick="fetchPeerList()">Fetch Peer List</button>
+    <pre id="peerList"></pre>
+</body>
+</html>

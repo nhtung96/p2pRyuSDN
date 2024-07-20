@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Modification</title>
+    <script>
+        function applyFlowMod() {
+            const hostname = document.getElementById('hostname').value;
+            const dpid = document.getElementById('dpid').value;
+            const in_port = document.getElementById('in_port').value;
+            const port = document.getElementById('port').value;
+            const type = document.getElementById('type').value;
+
+            const flowModData = {
+                "dpid": parseInt(dpid),
+                "cookie": 1,
+                "cookie_mask": 1,
+                "table_id": 0,
+                "idle_timeout": 0,
+                "hard_timeout": 0,
+                "priority": 1,
+                "flags": 1,
+                "match": {
+                    "in_port": parseInt(in_port),
+                },
+                "instructions": [
+                    {
+                        "type": "APPLY_ACTIONS",
+                        "actions": [
+                            {
+                                "max_len": 65535,
+                                "port": parseInt(port),
+                                "type": type
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            fetch(`/flow_mod/${hostname}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(flowModData),
+            })
+            .then(response => response.text())
+            .then(data => alert('Flow modification applied successfully'))
+            .catch(error => alert('Failed to apply flow modification: ' + error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Flow Modification</h1>
+    <label for="hostname">Hostname:</label>
+    <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+    <br>
+    <label for="dpid">DPID:</label>
+    <input type="number" id="dpid" name="dpid" placeholder="Enter DPID">
+    <br>
+    <label for="in_port">In Port:</label>
+    <input type="number" id="in_port" name="in_port" placeholder="Enter In Port">
+    <br>
+    <label for="port">Port:</label>
+    <input type="number" id="port" name="port" placeholder="Enter Port">
+    <br>
+    <label for="type">Action Type:</label>
+    <input type="text" id="type" name="type" placeholder="Enter Action Type (e.g., OUTPUT)">
+    <br>
+    <button onclick="applyFlowMod()">Apply Flow Mod</button>
+</body>
+</html>

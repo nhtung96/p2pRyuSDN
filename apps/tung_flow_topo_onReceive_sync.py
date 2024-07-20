@@ -265,6 +265,16 @@ class TopologyController(ControllerBase):
            methods=['GET'])
     def get_local_topology(self, req, **kwargs):
         return self._topology(req, **kwargs)
+
+    #tung
+    @route('topology', '/p2p/peer_list',
+           methods=['GET'])
+    def peer_list(self, req, **kwargs):
+        peer_list_path = '/home/huutung/peer_list.txt'
+        peers = load_peer_list(peer_list_path)
+        body = json.dumps([peer for peer in peers])
+        return Response(content_type='application/json', body=body)
+
     #tung
     @route('flows', '/p2p/global/flows',
            methods=['GET'])
