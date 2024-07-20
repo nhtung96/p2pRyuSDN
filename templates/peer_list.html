@@ -7,14 +7,29 @@
     <script>
         function fetchPeerList() {
             const hostname = document.getElementById('hostname').value;
+            if (!hostname) {
+                alert('Please enter a hostname.');
+                return;
+            }
+
             const url = `http://${hostname}:8080/p2p/peer_list`;
 
             fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('peerList').textContent = JSON.stringify(data, null, 2);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse JSON data
                 })
-                .catch(error => alert('Request Failed: ' + error));
+                .then(data => {
+                    const pre = document.getElementById('peerList');
+                    pre.textContent = JSON.stringify(data, null, 2); // Display formatted JSON
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    const pre = document.getElementById('peerList');
+                    pre.textContent = 'Error fetching peer list: ' + error.message; // Display error message
+                });
         }
     </script>
 </head>
