@@ -19,7 +19,7 @@ def peer_connect():
     return render_template('peer_connect.html')
 
 @app.route('/p2p/peer_list/<hostname1>/<hostname2>', methods=['GET'])
-def peer_list_by_hostname(hostname1, hostname2):
+def peer_connect_by_hostname(hostname1, hostname2):
     try:
         # Construct the URL to fetch peer list from the specified hostname
         url = f'http://{hostname1}:8080/p2p/join/{hostname2}'
