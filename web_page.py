@@ -18,9 +18,20 @@ def flow_modify():
 def peer_connect():
     return render_template('peer_connect.html')
 
-@app.route('/p2p/peer_list')
-def peer_list():
+@app.route('/p2p/peer_list', methods=['GET'])
+def peer_list_page():
     return render_template('peer_list.html')
+
+@app.route('/p2p/peer_list/<hostname>', methods=['GET'])
+def peer_list_by_hostname(hostname):
+    try:
+        # Construct the URL to fetch peer list from the specified hostname
+        url = f'http://{hostname}:8080/p2p/peer_list'
+        response = requests.get(url)
+        response.raise_for_status()  # Check for HTTP errors
+        return jsonify(response.json())  # Return the JSON response from the other server
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/flow_mod/<hostname>', methods=['POST'])
 def flow_mod(hostname):

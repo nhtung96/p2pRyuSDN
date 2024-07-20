@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peer List</title>
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"> <!-- Favicon -->
     <style>
         table {
             width: 100%;
@@ -27,23 +26,23 @@
                 return;
             }
 
-            const url = `http://${hostname}:8080/p2p/peer_list`;
-            console.log('Fetching:', url);
+            const url = `http://localhost:8080/p2p/peer_list/${hostname}`;
+            console.log('Fetching URL:', url);
 
             fetch(url)
                 .then(response => {
-                    console.log('Response status:', response.status);
+                    console.log('Response Status:', response.status);
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        throw new Error('Network response was not ok. Status: ' + response.status);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Fetched data:', data);
+                    console.log('Fetched Data:', data);
                     displayDataAsHtml(data);
                 })
                 .catch(error => {
-                    console.error('Fetch error:', error);
+                    console.error('Fetch Error:', error);
                     const pre = document.getElementById('peerList');
                     pre.innerHTML = 'Error fetching peer list: ' + error.message;
                 });
@@ -51,16 +50,15 @@
 
         function displayDataAsHtml(data) {
             const pre = document.getElementById('peerList');
-            let html = '<table><tr><th>Peer</th></tr>';
-
-            if (Array.isArray(data)) {
-                data.forEach(item => {
-                    html += `<tr><td>${item}</td></tr>`;
-                });
-            } else {
-                html = 'No data available.';
+            if (!Array.isArray(data)) {
+                pre.innerHTML = 'Expected an array but got: ' + JSON.stringify(data);
+                return;
             }
 
+            let html = '<table><tr><th>Peer</th></tr>';
+            data.forEach(item => {
+                html += `<tr><td>${item}</td></tr>`;
+            });
             html += '</table>';
             pre.innerHTML = html;
         }
