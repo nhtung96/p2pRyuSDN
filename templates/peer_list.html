@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peer List</title>
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"> <!-- Add favicon link -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon"> <!-- Favicon -->
     <style>
-        /* Add some basic styling */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -29,52 +28,41 @@
             }
 
             const url = `http://${hostname}:8080/p2p/peer_list`;
-            console.log('Fetching:', url); // Log the URL being fetched
+            console.log('Fetching:', url);
 
             fetch(url)
                 .then(response => {
-                    console.log('Response status:', response.status); // Log response status
+                    console.log('Response status:', response.status);
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.json(); // Parse JSON data
+                    return response.json();
                 })
                 .then(data => {
-                    console.log('Fetched data:', data); // Log fetched data
-                    displayDataAsHtml(data); // Call function to display data as HTML
+                    console.log('Fetched data:', data);
+                    displayDataAsHtml(data);
                 })
                 .catch(error => {
-                    console.error('Fetch error:', error); // Log fetch error
+                    console.error('Fetch error:', error);
                     const pre = document.getElementById('peerList');
-                    pre.innerHTML = 'Error fetching peer list: ' + error.message; // Display error message
+                    pre.innerHTML = 'Error fetching peer list: ' + error.message;
                 });
         }
 
         function displayDataAsHtml(data) {
             const pre = document.getElementById('peerList');
-            let html = '<table><tr>';
+            let html = '<table><tr><th>Peer</th></tr>';
 
-            // Generate table headers from JSON keys
-            if (Array.isArray(data) && data.length > 0) {
-                Object.keys(data[0]).forEach(key => {
-                    html += `<th>${key}</th>`;
-                });
-                html += '</tr>';
-
-                // Generate table rows from JSON data
+            if (Array.isArray(data)) {
                 data.forEach(item => {
-                    html += '<tr>';
-                    Object.values(item).forEach(value => {
-                        html += `<td>${value}</td>`;
-                    });
-                    html += '</tr>';
+                    html += `<tr><td>${item}</td></tr>`;
                 });
             } else {
                 html = 'No data available.';
             }
 
             html += '</table>';
-            pre.innerHTML = html; // Set HTML content
+            pre.innerHTML = html;
         }
     </script>
 </head>
@@ -84,6 +72,6 @@
     <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
     <br>
     <button onclick="fetchPeerList()">Fetch Peer List</button>
-    <div id="peerList"></div> <!-- Changed from <pre> to <div> -->
+    <div id="peerList"></div>
 </body>
 </html>
