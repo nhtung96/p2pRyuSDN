@@ -6,7 +6,7 @@ app = Flask(__name__)
 def index():
     return render_template('flow_modify.html')
 
-@app.route('/')
+@app.route('/p2p/connect')
 def index():
     return render_template('peer_connect.html')
 

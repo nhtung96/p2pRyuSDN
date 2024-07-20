@@ -54,7 +54,7 @@ Note:
 Tạo 1 endpoint cho gửi/nhận. action nào data gì thì bỏ trong body http post json hết
 
 
-curl -X GET http://controller-1:8080/send_message1/controller-2
+curl -X GET http://controller-1:8080/p2p/join/controller-2
 
 
 curl -X POST -d '{
