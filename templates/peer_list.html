@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peer List</title>
+    <style>
+        /* Add some basic styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
     <script>
         function fetchPeerList() {
             const hostname = document.getElementById('hostname').value;
@@ -13,23 +28,52 @@
             }
 
             const url = `http://${hostname}:8080/p2p/peer_list`;
+            console.log('Fetching:', url); // Log the URL being fetched
 
             fetch(url)
                 .then(response => {
+                    console.log('Response status:', response.status); // Log response status
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
                     return response.json(); // Parse JSON data
                 })
                 .then(data => {
-                    const pre = document.getElementById('peerList');
-                    pre.textContent = JSON.stringify(data, null, 2); // Display formatted JSON
+                    console.log('Fetched data:', data); // Log fetched data
+                    displayDataAsHtml(data); // Call function to display data as HTML
                 })
                 .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
+                    console.error('Fetch error:', error); // Log fetch error
                     const pre = document.getElementById('peerList');
-                    pre.textContent = 'Error fetching peer list: ' + error.message; // Display error message
+                    pre.innerHTML = 'Error fetching peer list: ' + error.message; // Display error message
                 });
+        }
+
+        function displayDataAsHtml(data) {
+            const pre = document.getElementById('peerList');
+            let html = '<table><tr>';
+
+            // Generate table headers from JSON keys
+            if (Array.isArray(data) && data.length > 0) {
+                Object.keys(data[0]).forEach(key => {
+                    html += `<th>${key}</th>`;
+                });
+                html += '</tr>';
+
+                // Generate table rows from JSON data
+                data.forEach(item => {
+                    html += '<tr>';
+                    Object.values(item).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                });
+            } else {
+                html = 'No data available.';
+            }
+
+            html += '</table>';
+            pre.innerHTML = html; // Set HTML content
         }
     </script>
 </head>
@@ -39,6 +83,6 @@
     <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
     <br>
     <button onclick="fetchPeerList()">Fetch Peer List</button>
-    <pre id="peerList"></pre>
+    <div id="peerList"></div> <!-- Changed from <pre> to <div> -->
 </body>
 </html>
