@@ -16,8 +16,8 @@ def flow_modify():
 def peer_connect():
     return render_template('peer_connect.html')
 
-@app.route('/p2p/peer_list/<hostname>')
-def peer_list(hostname):
+@app.route('/p2p/peer_list')
+def peer_list():
     return render_template('peer_list.html')
 
 @app.route('/flow_mod/<hostname>', methods=['POST'])
