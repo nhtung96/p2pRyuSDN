@@ -8,7 +8,7 @@
         function sendRequest() {
             const hostname1 = document.getElementById('hostname1').value;
             const hostname2 = document.getElementById('hostname2').value;
-            const url = `/p2p/connect?hostname1=${encodeURIComponent(hostname1)}&hostname2=${encodeURIComponent(hostname2)}`;
+            const url = `/p2p/connect/${hostname1}/${hostname2}`;
 
             fetch(url, {
                 method: 'GET'
