@@ -18,7 +18,7 @@ def flow_modify():
 def peer_connect():
     return render_template('peer_connect.html')
 
-@app.route('/p2p/peer_list/<hostname1>/<hostname2>', methods=['GET'])
+@app.route('/p2p/connect/<hostname1>/<hostname2>', methods=['GET'])
 def peer_connect_by_hostname(hostname1, hostname2):
     try:
         # Construct the URL to fetch peer list from the specified hostname
