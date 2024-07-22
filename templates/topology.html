@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peer Connect</title>
+    <title>Topology</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -61,30 +61,43 @@
         .back-button:hover {
             background-color: #5a6268;
         }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
     </style>
     <script>
-        function sendRequest() {
-            const hostname1 = document.getElementById('hostname1').value;
-            const hostname2 = document.getElementById('hostname2').value;
-            const url = `/p2p/connect/${hostname1}/${hostname2}`;
+        function fetchTopology() {
+            const hostname = document.getElementById('hostname').value;
+            if (!hostname) {
+                alert('Please enter a hostname.');
+                return;
+            }
 
-            fetch(url, {
-                method: 'GET'
-            })
-            .then(response => response.text())
-            .then(data => alert('Request Successful: ' + data))
-            .catch(error => alert('Request Failed: ' + error));
+            const url = `/p2p/topology/${hostname}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('topology').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('topology').textContent = 'Error fetching topology: ' + error.message;
+                });
         }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>Peer Connect</h1>
-        <label for="hostname1">Hostname 1:</label>
-        <input type="text" id="hostname1" name="hostname1" placeholder="Enter the first hostname">
-        <label for="hostname2">Hostname 2:</label>
-        <input type="text" id="hostname2" name="hostname2" placeholder="Enter the second hostname">
-        <button onclick="sendRequest()">Join P2P</button>
+        <h1>Topology</h1>
+        <label for="hostname">Hostname:</label>
+        <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+        <button onclick="fetchTopology()">Fetch Topology</button>
+        <pre id="topology"></pre>
         <a href="/" class="button back-button">Back to Home</a>
     </div>
 </body>

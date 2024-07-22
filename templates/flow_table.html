@@ -6,21 +6,39 @@
     <title>Flow Table</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        h1 {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
             color: #333;
         }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007BFF;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         label {
+            display: block;
             font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
         input {
-            padding: 8px;
-            margin: 10px 0;
+            padding: 10px;
+            width: calc(100% - 24px);
+            margin-bottom: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
         button {
             padding: 10px 20px;
@@ -29,29 +47,33 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
+            display: block;
+            margin: 0 auto;
         }
         button:hover {
             background-color: #0056b3;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .flow-table {
             margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
         }
-        th, td {
+        .flow-table th, .flow-table td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 8px;
             text-align: left;
         }
-        th {
-            background-color: #f4f4f4;
+        .flow-table th {
+            background-color: #007BFF;
+            color: white;
             font-weight: bold;
         }
-        tr:nth-child(even) {
+        .flow-table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        tr:hover {
-            background-color: #e2e2e2;
+        .flow-table td {
+            word-break: break-word;
         }
     </style>
     <script>
@@ -62,7 +84,7 @@
                 return;
             }
 
-            const url = `http://localhost:8080/p2p/flow_table/${hostname}`;
+            const url = `http://localhost:5000/p2p/flow_table/${hostname}`;
             console.log('Fetching URL:', url);
 
             fetch(url)
@@ -75,45 +97,54 @@
                 })
                 .then(data => {
                     console.log('Fetched Data:', data);
-                    displayDataAsHtml(data);
+                    displayFlowTable(data);
                 })
                 .catch(error => {
                     console.error('Fetch Error:', error);
-                    const pre = document.getElementById('flowTable');
-                    pre.innerHTML = 'Error fetching flow table: ' + error.message;
+                    const div = document.getElementById('flow-table');
+                    div.innerHTML = 'Error fetching flow table: ' + error.message;
                 });
         }
 
-        function displayDataAsHtml(data) {
-            const pre = document.getElementById('flowTable');
-            if (!Array.isArray(data)) {
-                pre.innerHTML = 'Expected an array but got: ' + JSON.stringify(data);
-                return;
-            }
+        function displayFlowTable(data) {
+            const table = document.createElement('table');
+            table.className = 'flow-table';
 
-            let html = '<table>';
-            html += '<tr><th>DPID</th><th>Flow Details</th></tr>';
-            data.forEach(flow => {
-                const flowDetails = `
-                    Cookie: ${flow.cookie}<br>
-                    Priority: ${flow.priority}<br>
-                    Table ID: ${flow.table_id}<br>
-                    Match: ${JSON.stringify(flow.match)}<br>
-                    Instructions: ${JSON.stringify(flow.instructions)}
-                `;
-                html += `<tr><td>${flow.dpid}</td><td>${flowDetails}</td></tr>`;
+            const thead = table.createTHead();
+            const headerRow = thead.insertRow();
+
+            const headers = ['Flow ID', 'DPID', 'Cookie', 'Priority', 'Table ID', 'Match', 'Instructions'];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
             });
-            html += '</table>';
-            pre.innerHTML = html;
+
+            const tbody = table.createTBody();
+            data.forEach((flow, index) => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = index + 1;
+                row.insertCell().textContent = flow.dpid || 'N/A'; // Adjust if your data includes dpid
+                row.insertCell().textContent = flow.cookie;
+                row.insertCell().textContent = flow.priority;
+                row.insertCell().textContent = flow.table_id;
+                row.insertCell().textContent = JSON.stringify(flow.match);
+                row.insertCell().textContent = JSON.stringify(flow.instructions);
+            });
+
+            const div = document.getElementById('flow-table');
+            div.innerHTML = '';
+            div.appendChild(table);
         }
     </script>
 </head>
 <body>
-    <h1>Flow Table</h1>
-    <label for="hostname">Hostname:</label>
-    <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
-    <br>
-    <button onclick="fetchFlowTable()">Fetch Flow Table</button>
-    <div id="flowTable"></div>
+    <div class="container">
+        <h1>Flow Table</h1>
+        <label for="hostname">Hostname:</label>
+        <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+        <button onclick="fetchFlowTable()">Fetch Flow Table</button>
+        <div id="flow-table"></div>
+    </div>
 </body>
 </html>

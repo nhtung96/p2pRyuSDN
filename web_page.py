@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import requests
 import subprocess
 from flask_cors import CORS
@@ -79,5 +79,27 @@ def flow_table_by_hostname(hostname):
     except requests.RequestException as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/p2p/topology', methods=['GET'])
+def topology_page():
+    return render_template('topology.html')
+
+@app.route('/p2p/topology/<hostname>', methods=['GET'])
+def proxy_topology(hostname):
+    try:
+        # Construct the URL to fetch the webpage from the specified hostname
+        url = f'http://{hostname}:8080'
+        
+        # Forward the request to the target server
+        response = requests.get(url, headers=request.headers, stream=True)
+        response.raise_for_status()  # Check for HTTP errors
+        
+        # Create a new response with the content from the target server
+        return Response(
+            response.iter_content(chunk_size=1024),
+            content_type=response.headers.get('Content-Type'),
+            status=response.status_code
+        )
+    except requests.RequestException as e:
+        return str(e), 500
 if __name__ == '__main__':
     app.run(debug=True)
