@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Table</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+    <script>
+        function fetchFlowTable() {
+            const hostname = document.getElementById('hostname').value;
+            if (!hostname) {
+                alert('Please enter a hostname.');
+                return;
+            }
+
+            const url = `http://localhost:5000/p2p/flow_table/${hostname}`;
+            console.log('Fetching URL:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Response Status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok. Status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched Data:', data);
+                    displayDataAsHtml(data);
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    const pre = document.getElementById('flowTable');
+                    pre.innerHTML = 'Error fetching flow table: ' + error.message;
+                });
+        }
+
+        function displayDataAsHtml(data) {
+            const pre = document.getElementById('flowTable');
+            if (typeof data !== 'object') {
+                pre.innerHTML = 'Expected an object but got: ' + JSON.stringify(data);
+                return;
+            }
+
+            let html = '<table><tr><th>Flow</th></tr>';
+            for (let key in data) {
+                if (data.hasOwnProperty(key)) {
+                    html += `<tr><td>${key}: ${JSON.stringify(data[key])}</td></tr>`;
+                }
+            }
+            html += '</table>';
+            pre.innerHTML = html;
+        }
+    </script>
+</head>
+<body>
+    <h1>Flow Table</h1>
+    <label for="hostname">Hostname:</label>
+    <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+    <br>
+    <button onclick="fetchFlowTable()">Fetch Flow Table</button>
+    <div id="flowTable"></div>
+</body>
+</html>

@@ -247,7 +247,6 @@ class RsaController(ControllerBase):
             return
         else:
             return f"{hostname_peer} is not authorized."
-
     # Step 1: Receive and process Message 1 (Anonce)
     @route('rsa', '/message1', methods=['POST'])
     def receive_message1(self, req, **kwargs):

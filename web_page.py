@@ -63,10 +63,21 @@ def flow_mod(hostname):
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"Error: {e.stderr}", 500
+    
+@app.route('/p2p/flow_table', methods=['GET'])
+def flow_table_page():
+    return render_template('flow_table.html')
 
-@app.route('/flow_mod')
-def flow_mod_page():
-    return render_template('flow_mod.html')
+@app.route('/p2p/flow_table/<hostname>', methods=['GET'])
+def flow_table_by_hostname(hostname):
+    try:
+        # Construct the URL to fetch flow table from the specified hostname
+        url = f'http://{hostname}:8080/p2p/global/flows'
+        response = requests.get(url)
+        response.raise_for_status()  # Check for HTTP errors
+        return jsonify(response.json())  # Return the JSON response from the other server
+    except requests.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
