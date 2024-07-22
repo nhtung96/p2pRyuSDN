@@ -232,30 +232,13 @@ class TopologyController(ControllerBase):
     #tung
     @route('topology','/p2p/global/topology', methods=['GET'])
     def get_global_topology(self, req, **kwargs):
-        try:
-            client = MongoClient('mongodb://localhost:27017/')
-            db = client['sdn']
-            collection = db['topology']
-            
-            # Find all documents
-            topology = collection.find({}, {"_id": 0})  # Exclude '_id' field if you do not want to include it
-            
-            # Convert each document
-            serialized_topology = [serialize_document(doc) for doc in topology]
-            
-            # Convert to JSON
-            body = json.dumps(serialized_topology)
-            
-            client.close()
-            
-            return Response(body, content_type='application/json')
-        
-        except Exception as e:
-            return Response(
-                response=json.dumps({'error': str(e)}),
-                status=500,
-                mimetype='application/json'
-            )
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['sdn']
+        collection = db['topology']
+        topology = collection.find({}, {"_id":0})
+        body = json.dumps([topo for topo in topology])
+        client.close()
+        return Response(content_type='application/json', body=body)
     
     #tung
     @route('topology', '/p2p/global/switches',
