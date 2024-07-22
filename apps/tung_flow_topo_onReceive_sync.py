@@ -217,7 +217,7 @@ class TopologyController(ControllerBase):
         return 
     
     #tung
-    @route('topology', '/p2p/topology/global',
+    @route('topology', '/p2p/global/topology',
            methods=['GET'])
     def get_global_topology(self, req, **kwargs):
         client = MongoClient('mongodb://localhost:27017/')

@@ -5,17 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flow Table</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
         }
         th {
             background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e2e2e2;
         }
     </style>
     <script>
@@ -26,7 +62,7 @@
                 return;
             }
 
-            const url = `http://localhost:5000/p2p/flow_table/${hostname}`;
+            const url = `http://localhost:8080/p2p/flow_table/${hostname}`;
             console.log('Fetching URL:', url);
 
             fetch(url)
@@ -50,17 +86,23 @@
 
         function displayDataAsHtml(data) {
             const pre = document.getElementById('flowTable');
-            if (typeof data !== 'object') {
-                pre.innerHTML = 'Expected an object but got: ' + JSON.stringify(data);
+            if (!Array.isArray(data)) {
+                pre.innerHTML = 'Expected an array but got: ' + JSON.stringify(data);
                 return;
             }
 
-            let html = '<table><tr><th>Flow</th></tr>';
-            for (let key in data) {
-                if (data.hasOwnProperty(key)) {
-                    html += `<tr><td>${key}: ${JSON.stringify(data[key])}</td></tr>`;
-                }
-            }
+            let html = '<table>';
+            html += '<tr><th>DPID</th><th>Flow Details</th></tr>';
+            data.forEach(flow => {
+                const flowDetails = `
+                    Cookie: ${flow.cookie}<br>
+                    Priority: ${flow.priority}<br>
+                    Table ID: ${flow.table_id}<br>
+                    Match: ${JSON.stringify(flow.match)}<br>
+                    Instructions: ${JSON.stringify(flow.instructions)}
+                `;
+                html += `<tr><td>${flow.dpid}</td><td>${flowDetails}</td></tr>`;
+            });
             html += '</table>';
             pre.innerHTML = html;
         }
