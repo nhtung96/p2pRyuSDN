@@ -6,87 +6,35 @@
     <title>Topology</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
+            font-family: Arial, sans-serif;
+            margin: 20px;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #007BFF;
-            font-size: 24px;
             margin-bottom: 20px;
-            text-align: center;
         }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        input {
-            padding: 10px;
-            width: calc(100% - 22px);
-            margin-bottom: 20px;
+        #json-viewer {
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            padding: 20px;
+            background-color: #f9f9f9;
         }
-        button {
+        .nav-buttons {
+            margin-bottom: 20px;
+        }
+        .nav-buttons button {
+            margin-right: 10px;
             padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 14px;
-            display: block;
-            margin: 0 auto;
         }
-        .home-button {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        display: inline-block;
-        padding: 12px 24px;
-        background-color: #007BFF;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        z-index: 1000;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .back-button {
-            background-color: #6c757d;
-            margin-top: 20px;
-        }
-        .back-button:hover {
-            background-color: #5a6268;
-        }
-        pre {
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            font-size: 14px;
+        .nav-buttons button:hover {
+            background-color: #ddd;
         }
     </style>
+    <!-- Include JSONView Library -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsonview@1.0.2/dist/jsonview.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsonview@1.0.2/dist/jsonview.min.js"></script>
     <script>
         function fetchTopology() {
             const hostname = document.getElementById('hostname').value;
@@ -96,27 +44,43 @@
             }
 
             const url = `/p2p/topology/${hostname}`;
+            console.log('Fetching URL:', url);
+
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response Status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok. Status: ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    document.getElementById('topology').textContent = JSON.stringify(data, null, 2);
+                    console.log('Fetched Data:', data);
+                    displayJson(data);
                 })
                 .catch(error => {
-                    document.getElementById('topology').textContent = 'Error fetching topology: ' + error.message;
+                    console.error('Fetch Error:', error);
+                    document.getElementById('json-viewer').innerHTML = 'Error fetching topology: ' + error.message;
                 });
+        }
+
+        function displayJson(data) {
+            const jsonViewer = document.getElementById('json-viewer');
+            jsonViewer.innerHTML = ''; // Clear previous content
+            const jsonView = new JSONView(jsonViewer);
+            jsonView.render(data);
         }
     </script>
 </head>
 <body>
-    <!-- Home Button -->
-    <a href="/" class="home-button">Home</a>
-    <div class="container">
-        <h1>Topology</h1>
-        <label for="hostname">Hostname:</label>
-        <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
-        <button onclick="fetchTopology()">Fetch Topology</button>
-        <pre id="topology"></pre>
-        <a href="/" class="button back-button">Back to Home</a>
+    <div class="nav-buttons">
+        <button onclick="window.location.href = '/'">Home</button>
     </div>
+    <h1>Topology Viewer</h1>
+    <label for="hostname">Hostname:</label>
+    <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
+    <br>
+    <button onclick="fetchTopology()">Fetch Topology</button>
+    <div id="json-viewer"></div>
 </body>
 </html>
