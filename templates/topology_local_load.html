@@ -108,7 +108,7 @@
                 return;
             }
 
-            const url = `/p2p/topology/${hostname}`;
+            const url = `/p2p/topology/local/${hostname}`;
             console.log('Fetching URL:', url);
 
             fetch(url)
@@ -140,7 +140,7 @@
         <div class="nav-buttons">
             <button onclick="window.location.href = '/'">Home</button>
         </div>
-        <h1>Topology Global Viewer</h1>
+        <h1>Topology Local Viewer</h1>
         <div class="form-group">
             <label for="hostname">Hostname:</label>
             <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">

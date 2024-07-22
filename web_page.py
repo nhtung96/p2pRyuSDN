@@ -87,7 +87,7 @@ def topology_page():
 def proxy_topology(hostname):
     try:
         # Construct the URL to fetch the webpage from the specified hostname
-        url = f'http://{hostname}:8080'
+        url = f'http://{hostname}:8080/p2p/global/topology'
         
         # Forward the request to the target server
         response = requests.get(url, headers=request.headers, stream=True)
@@ -101,5 +101,30 @@ def proxy_topology(hostname):
         )
     except requests.RequestException as e:
         return str(e), 500
+    
+
+@app.route('/p2p/topology/local', methods=['GET'])
+def topology_page():
+    return render_template('topology_local_load.html')
+
+@app.route('/p2p/topology/local/<hostname>', methods=['GET'])
+def proxy_topology(hostname):
+    try:
+        # Construct the URL to fetch the webpage from the specified hostname
+        url = f'http://{hostname}:8080/p2p/topology'
+        
+        # Forward the request to the target server
+        response = requests.get(url, headers=request.headers, stream=True)
+        response.raise_for_status()  # Check for HTTP errors
+        
+        # Create a new response with the content from the target server
+        return Response(
+            response.iter_content(chunk_size=1024),
+            content_type=response.headers.get('Content-Type'),
+            status=response.status_code
+        )
+    except requests.RequestException as e:
+        return str(e), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
