@@ -34,6 +34,19 @@ import requests
 import ast
 import time
 import os
+
+from bson import ObjectId
+
+
+def serialize_objectid(obj):
+    if isinstance(obj, ObjectId):
+        return str(obj)
+    raise TypeError("Object of type ObjectId is not JSON serializable")
+
+def serialize_document(doc):
+    return {k: (serialize_objectid(v) if isinstance(v, ObjectId) else v) for k, v in doc.items()}
+
+
 # REST API for switch configuration
 #
 # get all the switches
@@ -217,16 +230,32 @@ class TopologyController(ControllerBase):
         return 
     
     #tung
-    @route('topology', '/p2p/global/topology',
-           methods=['GET'])
-    def get_global_topology(self, req, **kwargs):
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['sdn']
-        collection = db['topology']
-        topology = collection.find({}, {"record":1})
-        body = json.dumps([item for item in topology])
-        client.close()
-        return Response(content_type='application/json', body=body)
+    @route('/p2p/global/topology', methods=['GET'])
+    def get_global_topology():
+        try:
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['sdn']
+            collection = db['topology']
+            
+            # Find all documents
+            topology = collection.find({}, {"_id": 0})  # Exclude '_id' field if you do not want to include it
+            
+            # Convert each document
+            serialized_topology = [serialize_document(doc) for doc in topology]
+            
+            # Convert to JSON
+            body = json.dumps(serialized_topology)
+            
+            client.close()
+            
+            return Response(body, content_type='application/json')
+        
+        except Exception as e:
+            return Response(
+                response=json.dumps({'error': str(e)}),
+                status=500,
+                mimetype='application/json'
+            )
     
     #tung
     @route('topology', '/p2p/global/switches',
