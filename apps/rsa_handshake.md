@@ -45,7 +45,7 @@ ssh-keygen -f id_rsa.pub -e -m pem > id_rsa.pub.pem
 
 
 #run ryu manager
-ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_flow_local_sync.py /home/huutung/p2pRyuSDN/apps/tung_flow_topo_onReceive_sync.py /home/huutung/p2pRyuSDN/apps/rsa_api.py ~/ryu/ryu/app/gui_topology/gui_topology.py
+ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_flow_local_sync.py /home/huutung/p2pRyuSDN/apps/tung_flow_topo_onReceive_sync.py /home/huutung/p2pRyuSDN/apps/rsa_api.py /home/huutung/p2pRyuSDN/apps/gui_topology/gui_topology.py
 
 
 

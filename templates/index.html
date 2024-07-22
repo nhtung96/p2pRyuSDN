@@ -6,29 +6,50 @@
     <title>Home</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+        }
         .container {
             margin-top: 50px;
         }
         .btn-home {
             background-color: #007BFF;
             color: white;
+            border-radius: 5px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
         }
         .btn-home:hover {
             background-color: #0056b3;
+            text-decoration: none;
+        }
+        .btn-home:focus, .btn-home:active {
+            box-shadow: none;
+        }
+        .btn-container {
+            margin-top: 30px;
+        }
+        h1 {
+            color: #007BFF;
+            font-size: 36px;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center">Peer to Peer SDN Management Interface</h1>
-        <div class="text-center">
-            <a href="p2p/flow_mod" class="btn btn-home btn-lg m-2">Flow Modification</a>
-            <a href="/p2p/connect" class="btn btn-home btn-lg m-2">Peer Connect</a>
-            <a href="/p2p/peer_list" class="btn btn-home btn-lg m-2">Peer List</a>
-            <a href="/p2p/flow_table" class="btn btn-home btn-lg m-2">Flow Table</a>
-            <a href="/p2p/topology/local" class="btn btn-home btn-lg m-2">Topology Local</a>
-            <a href="/p2p/topology" class="btn btn-home btn-lg m-2">Topology Global</a>
-            <a href="/p2p/topology/gui" class="btn btn-home btn-lg m-2">Topology Global</a>
+    <div class="container text-center">
+        <h1>Peer to Peer SDN Management Interface</h1>
+        <div class="btn-container">
+            <a href="p2p/flow_mod" class="btn btn-home m-2">Flow Modification</a>
+            <a href="/p2p/connect" class="btn btn-home m-2">Peer Connect</a>
+            <a href="/p2p/peer_list" class="btn btn-home m-2">Peer List</a>
+            <a href="/p2p/flow_table" class="btn btn-home m-2">Flow Table</a>
+            <a href="/p2p/topology/local" class="btn btn-home m-2">Topology Local</a>
+            <a href="/p2p/topology" class="btn btn-home m-2">Topology Global</a>
+            <a href="/p2p/topology/gui" class="btn btn-home m-2">Topology GUI</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
