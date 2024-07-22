@@ -51,6 +51,22 @@
             display: block;
             margin: 0 auto;
         }
+        .home-button {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #007BFF;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        z-index: 1000;
+        }
         button:hover {
             background-color: #0056b3;
         }
@@ -78,6 +94,8 @@
     </script>
 </head>
 <body>
+    <!-- Home Button -->
+    <a href="/" class="home-button">Home</a>    
     <div class="container">
         <h1>Peer Connect</h1>
         <label for="hostname1">Hostname 1:</label>
