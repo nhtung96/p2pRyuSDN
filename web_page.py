@@ -104,11 +104,11 @@ def proxy_topology(hostname):
     
 
 @app.route('/p2p/topology/local', methods=['GET'])
-def topology_page():
+def topology_page_local():
     return render_template('topology_local_load.html')
 
 @app.route('/p2p/topology/local/<hostname>', methods=['GET'])
-def proxy_topology(hostname):
+def proxy_topology_local(hostname):
     try:
         # Construct the URL to fetch the webpage from the specified hostname
         url = f'http://{hostname}:8080/p2p/topology'
