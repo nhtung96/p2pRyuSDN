@@ -214,7 +214,11 @@ class StatsController(ControllerBase):
         return Response(content_type='application/json', body=body)
 
     ###
-
+    @stats_method
+    def get_flow_stats(self, req, dp, ofctl, **kwargs):
+        flow = req.json if req.body else {}
+        return ofctl.get_flow_stats(dp, self.waiters, flow)    
+    
     @stats_method
     def get_role(self, req, dp, ofctl, **kwargs):
         return ofctl.get_role(dp, self.waiters)
@@ -363,6 +367,10 @@ class RestStatsApi(app_manager.RyuApp):
                        conditions=dict(method=['GET']))
 
         ###
+        uri = path + '/flow/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_flow_stats',
+                       conditions=dict(method=['GET', 'POST']))
 
         uri = path + '/role/{dpid}'
         mapper.connect('stats', uri,
