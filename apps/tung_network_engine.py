@@ -38,8 +38,8 @@ from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
 from ryu.app.wsgi import WSGIApplication
 
-from apps.tung_p2p_engine import load_peer_list
-from apps.tung_p2p_engine import encrypt_with_session_key
+from tung_p2p_engine import load_peer_list
+from tung_p2p_engine import encrypt_with_session_key
 
 #tung
 from pymongo import MongoClient
