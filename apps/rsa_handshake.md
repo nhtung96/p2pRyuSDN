@@ -45,9 +45,10 @@ ssh-keygen -f id_rsa.pub -e -m pem > id_rsa.pub.pem
 
 
 #run ryu manager
-ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_flow_local_sync.py /home/huutung/p2pRyuSDN/apps/tung_flow_topo_onReceive_sync.py /home/huutung/p2pRyuSDN/apps/rsa_api.py /home/huutung/ryu/ryu/app/gui_topology/gui_topology.py
-
-
+ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_network_engine.py /home/huutung/p2pRyuSDN/apps/tung_network_common_handler.py /home/huutung/p2pRyuSDN/apps/tung_p2p_engine.py /home/huutung/ryu/ryu/app/gui_topology/gui_topology.py
+show databases
+use sdn
+ db.dropDatabase()
 
 
 Note:
@@ -55,6 +56,9 @@ Tạo 1 endpoint cho gửi/nhận. action nào data gì thì bỏ trong body htt
 
 
 curl -X GET http://controller-1:8080/p2p/join/controller-2
+
+
+curl -X POST -d @large_json.json http://{hostname}:8080/stats/flowentry/add
 
 
 curl -X POST -d '{
@@ -161,3 +165,5 @@ curl -X POST -d '{
         }
     ]
  }' http://localhost:8080/stats/flowentry/add
+
+
