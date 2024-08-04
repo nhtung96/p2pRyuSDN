@@ -46,6 +46,10 @@ ssh-keygen -f id_rsa.pub -e -m pem > id_rsa.pub.pem
 
 #run ryu manager
 ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_network_engine.py /home/huutung/p2pRyuSDN/apps/tung_network_common_handler.py /home/huutung/p2pRyuSDN/apps/tung_p2p_engine.py /home/huutung/ryu/ryu/app/gui_topology/gui_topology.py
+
+
+ryu-manager --observe-links --app-lists /home/huutung/p2pRyuSDN/apps/tung_network_engine.py /home/huutung/p2pRyuSDN/apps/tung_network_common_handler.py /home/huutung/ryu/ryu/app/gui_topology/gui_topology.py
+
 show databases
 use sdn
  db.dropDatabase()

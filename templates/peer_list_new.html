@@ -92,30 +92,36 @@
         }
     </style>
     <script>
-        function fetchPeerList() {
+        // Function to fetch data for a given hostname
+        async function fetchDataForHostname(hostname) {
             //hard code hostnames
             const hostnames = ['controller-1', 'controller-2', 'controller-3'];
-
             const url = `/p2p/peer_list/${hostname}`;
             console.log('Fetching URL:', url);
 
-            fetch(url)
-                .then(response => {
-                    console.log('Response Status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok. Status: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Fetched Data:', data);
-                    displayDataAsHtml(data);
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                    const pre = document.getElementById('peerList');
-                    pre.innerHTML = 'Error fetching peer list: ' + error.message;
-                });
+            try {
+                const response = await fetch(url);
+                console.log('Response Status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok. Status: ' + response.status);
+                }
+                
+                const data = await response.json();
+                console.log('Fetched Data:', data);
+                displayDataAsHtml(data);
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                const pre = document.getElementById('peerList');
+                pre.innerHTML = 'Error fetching peer list: ' + error.message;
+            }
+        }
+
+        // Function to iterate over the list of hostnames and fetch data sequentially
+        async function fetchAllHostnames() {
+            for (const hostname of hostnames) {
+                await fetchDataForHostname(hostname);
+            }
         }
 
         function displayDataAsHtml(data) {
@@ -141,7 +147,7 @@
         <h1>Peer List</h1>
         <label for="hostname">Hostname:</label>
         <input type="text" id="hostname" name="hostname" placeholder="Enter hostname">
-        <button onclick="fetchPeerList()">Fetch Peer List</button>
+        <button onclick="fetchAllHostnames()">Fetch Peer List</button>
         <div id="peerList"></div>
     </div>
 </body>
