@@ -64,6 +64,6 @@ class GUIServerController(ControllerBase):
 
 
 #app_manager.require_app('ryu.app.rest_topology')
-app_manager.require_app('/home/huutung/p2pRyuSDN/apps/rsa_api.py')
+app_manager.require_app('/home/huutung/p2pRyuSDN/apps/tung_p2p_engine.py')
 #app_manager.require_app('ryu.app.ws_topology')
 #app_manager.require_app('ryu.app.ofctl_rest')
