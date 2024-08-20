@@ -184,13 +184,13 @@ class TopologyController(ControllerBase):
         # Decrypt message
         peers = load_peer_list('/home/huutung/peer_list.txt')
         hostname_peer = data.get('hostname')       
-        domain = data.get('domain')
         session_key = peers[hostname_peer][2]
         message = data.get('encrypted_message')
         decrypted_message = decrypt_with_session_key(session_key, message)
         print("========DECRYPTED DATA===========\n", decrypted_message)
         peers_to_exclude = decrypted_message['exclude']
         action = decrypted_message['action']
+        domain = decrypted_message['domain']
 
         if action == 'insert':
             flow = decrypted_message['flow']
