@@ -23,6 +23,7 @@ from ryu.app.wsgi import WSGIApplication
 from ryu.base import app_manager
 from ryu.lib import dpid as dpid_lib
 from ryu.topology.api import get_switch, get_link, get_host
+from bson import BSON
 
 from tung_p2p_engine import load_peer_list
 from tung_p2p_engine import decrypt_with_session_key
@@ -220,7 +221,8 @@ class TopologyController(ControllerBase):
             db = client['sdn']  
             collection = db['topology']  
             query = {'domain': hostname_peer, 'record': 1}
-            update_data = {'$set': {'topo': topo}}
+            bson_data = BSON.encode(topo)
+            update_data = {'$set': {'topo': bson_data}}
             collection.update_one(query, update_data, upsert=True)
             client.close()
             print("========TOPOLOGY UPDATED===========\n")
