@@ -216,13 +216,13 @@ class TopologyController(ControllerBase):
         elif action == 'topology-update':
             data = decrypted_message['topology']
             topo = json.loads(json.dumps(data))
+            print(topo)
             send_secure_topology(topo, peers_to_exclude, peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['topology']  
             query = {'domain': hostname_peer, 'record': 1}
-            bson_data = BSON.encode(topo)
-            update_data = {'$set': {'topo': bson_data}}
+            update_data = {'$set': {'topo': json.loads(topo)}}
             collection.update_one(query, update_data, upsert=True)
             client.close()
             print("========TOPOLOGY UPDATED===========\n")
