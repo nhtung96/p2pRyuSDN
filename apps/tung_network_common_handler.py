@@ -74,7 +74,7 @@ def serialize_document(doc):
 hostname = socket.gethostname() 
 excluded_list = [hostname]
 #tung
-def send_secure_topology(topo, peers_to_exclude, peers):
+def send_secure_topology(domain, topo, peers_to_exclude, peers):
     end_point = '/secure-data'
     peers_to_update = [p for p in peers if p not in peers_to_exclude]
     peers_to_exclude = peers_to_exclude + peers_to_update 
@@ -82,7 +82,7 @@ def send_secure_topology(topo, peers_to_exclude, peers):
         time.sleep(1)
         url = 'http://{0}:8080{1}'.format(peer,end_point)
         headers = {'Content-type': 'application/json'}
-        data = {'action': 'topology-update', 'exclude': peers_to_exclude, 'topology': topo}
+        data = {'action': 'topology-update', 'exclude': peers_to_exclude, 'topology': topo, 'domain': domain}
         session_key = peers[peer][2]
         encrypted_data = encrypt_with_session_key(session_key, data)
         message = {
@@ -184,6 +184,7 @@ class TopologyController(ControllerBase):
         # Decrypt message
         peers = load_peer_list('/home/huutung/peer_list.txt')
         hostname_peer = data.get('hostname')       
+        domain = data.get('domain')
         session_key = peers[hostname_peer][2]
         message = data.get('encrypted_message')
         decrypted_message = decrypt_with_session_key(session_key, message)
@@ -217,11 +218,11 @@ class TopologyController(ControllerBase):
             data = decrypted_message['topology']
             topo = json.loads(json.dumps(data))
             print(topo)
-            send_secure_topology(topo, peers_to_exclude, peers)
+            send_secure_topology(domain, topo, peers_to_exclude, peers)
             client = MongoClient('mongodb://localhost:27017/')
             db = client['sdn']  
             collection = db['topology']  
-            query = {'domain': hostname_peer, 'record': 1}
+            query = {'domain': domain, 'record': 1}
             update_data = {'$set': {'topo': json.loads(topo)}}
             collection.update_one(query, update_data, upsert=True)
             client.close()
@@ -350,10 +351,11 @@ class TopologyController(ControllerBase):
         body = json.dumps(topology)
 
         peer_list_path = '/home/huutung/peer_list.txt'
+        domain = hostname
         # Check if the peer list file exists
         if os.path.exists(peer_list_path):
             peers = load_peer_list(peer_list_path)
-            send_secure_topology(body, excluded_list, peers)
+            send_secure_topology(domain, body, excluded_list, peers)
         else:
             # Handle the case when the file doesn't exist
             print(f"Peer list file does not exist: {peer_list_path}")
