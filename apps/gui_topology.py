@@ -24,6 +24,8 @@ $ PYTHONPATH=. ./bin/ryu run \
     --observe-links ryu/app/gui_topology/gui_topology.py
 
 3. Access http://<ip address of ryu host>:8080 with your web browser.
+
+HAVE FUN
 """
 
 import os
